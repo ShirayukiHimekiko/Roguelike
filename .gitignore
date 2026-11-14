@@ -82,3 +82,28 @@ sysinfo.txt
 #Temporary auto-generated Android Assets
 /UnityProject/Assets/StreamingAssets/aa.meta
 /UnityProject/Assets/StreamingAssets/aa/*
+
+#Entitas / Jenny local generator (download Jenny.zip per Tools/Entitas/EntitasGen/README.md)
+/UnityProject/Jenny/
+/UnityProject/Jenny-Server
+/UnityProject/Jenny-Server.bat
+/UnityProject/Jenny-Auto-Import
+/UnityProject/Jenny-Auto-Import.bat
+
+#YooAsset build output
+/UnityProject/Bundles/
+
+#macOS
+.DS_Store
+
+#Entitas generator project (repo tooling, not Unity-generated csproj)
+!/Tools/Entitas/EntitasGen/EntitasGen.csproj
+
+#Entitas generator build output
+/Tools/Entitas/EntitasGen/obj/
+/Tools/Entitas/EntitasGen/bin/
+
+#Disabled incompatible binaries (replaced by Compat source)
+*.dll.disabled
+
+*.dll.disabled.meta
