@@ -57,6 +57,13 @@ TEngine 基于 HybridCLR + YooAsset + UniTask + Luban 构建。
 | Luban 配置 | luban-config.md — 配置表生成流程、访问方式 |
 | 代码规范 | naming-rules.md — 命名约定、节点前缀、设计模式 |
 
+#### Entitas 任务
+
+涉及 Entitas / ECS（新增或修改组件、系统、Feature、代码生成，排查 ECS 触发/查询/性能问题）时，先加载 [entitas-dev](.agents/skills/entitas-dev/SKILL.md)，按其中的红线、开发流程和自检清单执行。
+
+- 只允许 1.14.1 API；2.x（`[Context(typeof(...))]`、`Entitas.Generators`）与 0.x（`Pools`）写法一律拒绝。
+- 当前仓库尚未安装 Entitas，安装前不得在业务代码中引用 Entitas 类型。
+
 ---
 
 ### 第二步：输出代码/方案

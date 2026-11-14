@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AssemblyName>EntitasGen</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="GameAttribute.cs" />
+    <Compile Include="..\..\..\UnityProject\Assets\GameScripts\HotFix\GameLogic\EntitasDemo\Components\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Entitas">
+      <HintPath>..\..\..\UnityProject\Assets\Plugins\EntitasOfficial\Entitas\Entitas.dll</HintPath>
+    </Reference>
+    <Reference Include="Entitas.CodeGeneration.Attributes">
+      <HintPath>..\..\..\UnityProject\Assets\Plugins\EntitasOfficial\Entitas\Entitas.CodeGeneration.Attributes.dll</HintPath>
+    </Reference>
+    <Reference Include="DesperateDevs.Caching">
+      <HintPath>..\..\..\UnityProject\Assets\Plugins\EntitasOfficial\DesperateDevs\DesperateDevs.Caching.dll</HintPath>
+    </Reference>
+    <Reference Include="DesperateDevs.Reflection">
+      <HintPath>..\..\..\UnityProject\Assets\Plugins\EntitasOfficial\DesperateDevs\DesperateDevs.Reflection.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
