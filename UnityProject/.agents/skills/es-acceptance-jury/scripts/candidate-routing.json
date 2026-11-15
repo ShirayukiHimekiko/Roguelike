@@ -1,0 +1,713 @@
+{
+  "schemaVersion": 3,
+  "mechanism": "references/candidate-mechanism.md#selection",
+  "mechanismSections": [
+    "references/candidate-mechanism.md#selection",
+    "references/candidate-mechanism.md#candidate-contract",
+    "references/candidate-mechanism.md#blocks"
+  ],
+  "blockKeys": [
+    "goal",
+    "rules",
+    "interaction",
+    "art",
+    "resources",
+    "tools",
+    "architecture",
+    "delivery"
+  ],
+  "roles": {
+    "progress": {
+      "card": "references/progress-correctness.md",
+      "blocks": {
+        "goal": {
+          "selector": "references/game-workspaces.md#goal",
+          "candidates": [
+            "F1-01",
+            "F1-02",
+            "F1-10",
+            "F1-16"
+          ]
+        },
+        "rules": {
+          "selector": "references/game-workspaces.md#rules",
+          "candidates": [
+            "F1-03",
+            "F1-04",
+            "F1-05",
+            "F1-06",
+            "F1-10",
+            "F1-13"
+          ]
+        },
+        "interaction": {
+          "selector": "references/game-workspaces.md#interaction",
+          "candidates": [
+            "F1-05",
+            "F1-09",
+            "F1-10",
+            "F1-13"
+          ]
+        },
+        "art": {
+          "selector": "references/game-workspaces.md#art",
+          "candidates": [
+            "F1-09",
+            "F1-14"
+          ]
+        },
+        "resources": {
+          "selector": "references/game-workspaces.md#resources",
+          "candidates": [
+            "F1-05",
+            "F1-06",
+            "F1-07",
+            "F1-11",
+            "F1-12",
+            "F1-13",
+            "F1-14"
+          ]
+        },
+        "tools": {
+          "selector": "references/game-workspaces.md#tools",
+          "candidates": [
+            "F1-07",
+            "F1-14",
+            "F1-15",
+            "F1-16"
+          ]
+        },
+        "architecture": {
+          "selector": "references/game-workspaces.md#architecture",
+          "candidates": [
+            "F1-04",
+            "F1-05",
+            "F1-06",
+            "F1-07",
+            "F1-08",
+            "F1-13"
+          ]
+        },
+        "delivery": {
+          "selector": "references/game-workspaces.md#delivery",
+          "candidates": [
+            "F1-07",
+            "F1-08",
+            "F1-11",
+            "F1-12",
+            "F1-15"
+          ]
+        }
+      },
+      "obligations": [
+        {
+          "id": "F0-01",
+          "selector": "references/progress-correctness.md#obligations-progress"
+        },
+        {
+          "id": "F0-02",
+          "selector": "references/progress-correctness.md#obligations-progress"
+        },
+        {
+          "id": "F0-03",
+          "selector": "references/progress-correctness.md#obligations-progress"
+        },
+        {
+          "id": "F0-04",
+          "selector": "references/progress-correctness.md#obligations-progress"
+        }
+      ],
+      "productChecks": [
+        {
+          "id": "F-P0-01",
+          "object": "必要操作与流程",
+          "selector": "references/p0-progress.md#products-progress",
+          "methodSelector": "references/p0-progress.md#method-f-p0-01",
+          "severityIfConfirmed": "P0",
+          "primaryRole": "progress"
+        },
+        {
+          "id": "F-P0-02",
+          "object": "规则、经济与业务归属",
+          "selector": "references/p0-progress.md#products-progress",
+          "methodSelector": "references/p0-progress.md#method-f-p0-02",
+          "severityIfConfirmed": "P0",
+          "primaryRole": "progress"
+        },
+        {
+          "id": "F-P0-03",
+          "object": "单位与世界业务状态",
+          "selector": "references/p0-progress.md#products-progress",
+          "methodSelector": "references/p0-progress.md#method-f-p0-03",
+          "severityIfConfirmed": "P0",
+          "primaryRole": "progress"
+        },
+        {
+          "id": "F-P0-04",
+          "object": "保存、恢复与后继",
+          "selector": "references/p0-progress.md#products-progress",
+          "methodSelector": "references/p0-progress.md#method-f-p0-04",
+          "severityIfConfirmed": "P0",
+          "primaryRole": "progress"
+        },
+        {
+          "id": "F-P0-06",
+          "object": "关键业务反馈真实性",
+          "selector": "references/p0-progress.md#products-progress",
+          "methodSelector": "references/p0-progress.md#method-f-p0-06",
+          "severityIfConfirmed": "P0",
+          "primaryRole": "progress"
+        }
+      ],
+      "directedSelector": "references/progress-correctness.md#directed-progress",
+      "checks": [
+        {
+          "id": "F1-01",
+          "selector": "references/progress-correctness.md#f1-requirements"
+        },
+        {
+          "id": "F1-02",
+          "selector": "references/progress-correctness.md#f1-requirements"
+        },
+        {
+          "id": "F1-03",
+          "selector": "references/progress-correctness.md#f1-rules"
+        },
+        {
+          "id": "F1-04",
+          "selector": "references/progress-correctness.md#f1-rules"
+        },
+        {
+          "id": "F1-05",
+          "selector": "references/progress-correctness.md#f1-lifecycle"
+        },
+        {
+          "id": "F1-06",
+          "selector": "references/progress-correctness.md#f1-lifecycle"
+        },
+        {
+          "id": "F1-07",
+          "selector": "references/progress-correctness.md#f1-integration"
+        },
+        {
+          "id": "F1-08",
+          "selector": "references/progress-correctness.md#f1-integration"
+        },
+        {
+          "id": "F1-09",
+          "selector": "references/progress-correctness.md#f1-presentation"
+        },
+        {
+          "id": "F1-10",
+          "selector": "references/progress-correctness.md#f1-presentation"
+        },
+        {
+          "id": "F1-11",
+          "selector": "references/progress-correctness.md#f1-performance"
+        },
+        {
+          "id": "F1-12",
+          "selector": "references/progress-correctness.md#f1-performance"
+        },
+        {
+          "id": "F1-13",
+          "selector": "references/progress-correctness.md#f1-resources"
+        },
+        {
+          "id": "F1-14",
+          "selector": "references/progress-correctness.md#f1-resources"
+        },
+        {
+          "id": "F1-15",
+          "selector": "references/progress-correctness.md#f1-tools"
+        },
+        {
+          "id": "F1-16",
+          "selector": "references/progress-correctness.md#f1-tools"
+        }
+      ],
+      "sharedChecks": [
+        "F1-01",
+        "F1-02",
+        "F1-15",
+        "F1-16"
+      ],
+      "crossCuttingChecks": {
+        "flow": [
+          "F1-05",
+          "F1-06",
+          "F1-08",
+          "F1-10",
+          "F1-13"
+        ],
+        "playability": [
+          "F1-03",
+          "F1-09",
+          "F1-10",
+          "F1-12"
+        ]
+      }
+    },
+    "architecture": {
+      "card": "references/architecture-ecology-playability.md",
+      "blocks": {
+        "goal": {
+          "selector": "references/game-workspaces.md#goal",
+          "candidates": [
+            "A1-01",
+            "A1-02",
+            "A1-03"
+          ]
+        },
+        "rules": {
+          "selector": "references/game-workspaces.md#rules",
+          "candidates": [
+            "A1-03",
+            "A1-04",
+            "A1-05",
+            "A1-06",
+            "A1-08",
+            "A1-10"
+          ]
+        },
+        "interaction": {
+          "selector": "references/game-workspaces.md#interaction",
+          "candidates": [
+            "A1-06",
+            "A1-08",
+            "A1-09",
+            "A1-10"
+          ]
+        },
+        "art": {
+          "selector": "references/game-workspaces.md#art",
+          "candidates": [
+            "A1-09",
+            "A1-10",
+            "A1-13",
+            "A1-14"
+          ]
+        },
+        "resources": {
+          "selector": "references/game-workspaces.md#resources",
+          "candidates": [
+            "A1-05",
+            "A1-06",
+            "A1-07",
+            "A1-08",
+            "A1-11",
+            "A1-12",
+            "A1-13",
+            "A1-14"
+          ]
+        },
+        "tools": {
+          "selector": "references/game-workspaces.md#tools",
+          "candidates": [
+            "A1-05",
+            "A1-06",
+            "A1-07",
+            "A1-08",
+            "A1-14",
+            "A1-15",
+            "A1-16"
+          ]
+        },
+        "architecture": {
+          "selector": "references/game-workspaces.md#architecture",
+          "candidates": [
+            "A1-01",
+            "A1-02",
+            "A1-03",
+            "A1-04",
+            "A1-05",
+            "A1-06",
+            "A1-07",
+            "A1-08"
+          ]
+        },
+        "delivery": {
+          "selector": "references/game-workspaces.md#delivery",
+          "candidates": [
+            "A1-05",
+            "A1-07",
+            "A1-11",
+            "A1-12",
+            "A1-15",
+            "A1-16"
+          ]
+        }
+      },
+      "obligations": [
+        {
+          "id": "A0-01",
+          "selector": "references/architecture-ecology-playability.md#obligations-architecture"
+        },
+        {
+          "id": "A0-02",
+          "selector": "references/architecture-ecology-playability.md#obligations-architecture"
+        },
+        {
+          "id": "A0-03",
+          "selector": "references/architecture-ecology-playability.md#obligations-architecture"
+        },
+        {
+          "id": "A0-04",
+          "selector": "references/architecture-ecology-playability.md#obligations-architecture"
+        }
+      ],
+      "productChecks": [
+        {
+          "id": "A-P0-01",
+          "object": "关键职责、身份隔离与污染",
+          "selector": "references/p0-architecture.md#products-architecture",
+          "methodSelector": "references/p0-architecture.md#method-a-p0-01",
+          "severityIfConfirmed": "P0",
+          "primaryRole": "architecture"
+        },
+        {
+          "id": "A-P0-02",
+          "object": "必要资源与目标环境",
+          "selector": "references/p0-architecture.md#products-architecture",
+          "methodSelector": "references/p0-architecture.md#method-a-p0-02",
+          "severityIfConfirmed": "P0",
+          "primaryRole": "architecture"
+        },
+        {
+          "id": "A-P0-03",
+          "object": "UI与空间可读可达",
+          "selector": "references/p0-architecture.md#products-architecture",
+          "methodSelector": "references/p0-architecture.md#method-a-p0-03",
+          "severityIfConfirmed": "P0",
+          "primaryRole": "architecture"
+        },
+        {
+          "id": "A-P0-04",
+          "object": "连续动作、镜头与音画",
+          "selector": "references/p0-architecture.md#products-architecture",
+          "methodSelector": "references/p0-architecture.md#method-a-p0-04",
+          "severityIfConfirmed": "P0",
+          "primaryRole": "architecture"
+        },
+        {
+          "id": "A-P0-05",
+          "object": "必要负载、性能、容量与寿命",
+          "selector": "references/p0-architecture.md#products-architecture",
+          "methodSelector": "references/p0-architecture.md#method-a-p0-05",
+          "severityIfConfirmed": "P0",
+          "primaryRole": "architecture"
+        }
+      ],
+      "directedSelector": "references/architecture-ecology-playability.md#directed-architecture",
+      "checks": [
+        {
+          "id": "A1-01",
+          "selector": "references/architecture-ecology-playability.md#a1-requirements"
+        },
+        {
+          "id": "A1-02",
+          "selector": "references/architecture-ecology-playability.md#a1-requirements"
+        },
+        {
+          "id": "A1-03",
+          "selector": "references/architecture-ecology-playability.md#a1-rules"
+        },
+        {
+          "id": "A1-04",
+          "selector": "references/architecture-ecology-playability.md#a1-rules"
+        },
+        {
+          "id": "A1-05",
+          "selector": "references/architecture-ecology-playability.md#a1-lifecycle"
+        },
+        {
+          "id": "A1-06",
+          "selector": "references/architecture-ecology-playability.md#a1-lifecycle"
+        },
+        {
+          "id": "A1-07",
+          "selector": "references/architecture-ecology-playability.md#a1-integration"
+        },
+        {
+          "id": "A1-08",
+          "selector": "references/architecture-ecology-playability.md#a1-integration"
+        },
+        {
+          "id": "A1-09",
+          "selector": "references/architecture-ecology-playability.md#a1-presentation"
+        },
+        {
+          "id": "A1-10",
+          "selector": "references/architecture-ecology-playability.md#a1-presentation"
+        },
+        {
+          "id": "A1-11",
+          "selector": "references/architecture-ecology-playability.md#a1-performance"
+        },
+        {
+          "id": "A1-12",
+          "selector": "references/architecture-ecology-playability.md#a1-performance"
+        },
+        {
+          "id": "A1-13",
+          "selector": "references/architecture-ecology-playability.md#a1-resources"
+        },
+        {
+          "id": "A1-14",
+          "selector": "references/architecture-ecology-playability.md#a1-resources"
+        },
+        {
+          "id": "A1-15",
+          "selector": "references/architecture-ecology-playability.md#a1-tools"
+        },
+        {
+          "id": "A1-16",
+          "selector": "references/architecture-ecology-playability.md#a1-tools"
+        }
+      ],
+      "sharedChecks": [
+        "A1-01",
+        "A1-02",
+        "A1-15",
+        "A1-16"
+      ],
+      "crossCuttingChecks": {
+        "flow": [
+          "A1-05",
+          "A1-06",
+          "A1-08",
+          "A1-09",
+          "A1-10"
+        ],
+        "playability": [
+          "A1-09",
+          "A1-10",
+          "A1-11",
+          "A1-12"
+        ]
+      }
+    }
+  },
+  "templates": {
+    "U1": "references/unity-candidates.md#u1",
+    "U2": "references/unity-candidates.md#u2",
+    "U3": "references/unity-candidates.md#u3",
+    "U4": "references/unity-candidates.md#u4",
+    "U5": "references/unity-candidates.md#u5",
+    "U6": "references/unity-candidates.md#u6",
+    "U7": "references/unity-candidates.md#u7",
+    "U8": "references/unity-candidates.md#u8",
+    "U9": "references/unity-candidates.md#u9"
+  },
+  "workspaceGuide": "references/game-workspaces.md#approach",
+  "crossCuttingWorkspaces": {
+    "flow": "references/game-workspaces.md#flow",
+    "playability": "references/game-workspaces.md#playability"
+  },
+  "symptoms": {
+    "spawn-appear": {
+      "title": "对象凭空出现／突然冒出（含刷怪、传送、池复用）",
+      "blocks": [
+        "rules"
+      ],
+      "templates": [
+        "U5",
+        "U9"
+      ],
+      "progress": [
+        "F-P0-03"
+      ],
+      "architecture": [
+        "A-P0-01",
+        "A-P0-03",
+        "A-P0-04"
+      ],
+      "staticChain": [
+        "生成点与实际 Spawner/工厂调用者：谁创建、什么条件触发、当前实际读到哪个调用点",
+        "所属区域/路与坐标域、父变换、高度、占用是否越界：实际配置值与合法边界对照",
+        "池的取得→重绑定→归还顺序：旧实例是否被写到新位置，回池后身份是否仍被旧持有者使用",
+        "取景链：相机 rig 与跟随目标/延迟、画幅与安全区、近远裁剪面与 Layer/Culling Mask、世界↔屏幕换算、相机切换混合时刻——位置合法而取景错误同样会让对象\"出现在屏幕中间\""
+      ],
+      "legalContrast": [
+        "规则允许的钻地/固定生成点刷出",
+        "批准传送与设计内跳切"
+      ],
+      "cannotConclude": "静图或单帧不能签权威坐标与生成合法性；完整静态链可确证对应违约，缺链只限未证命题，正常速度过程用于连续体验。生成与取景原因可共存，分别裁定。"
+    },
+    "clip-through": {
+      "title": "穿模／穿插／裁切",
+      "blocks": [
+        "art",
+        "architecture"
+      ],
+      "templates": [
+        "U9"
+      ],
+      "progress": [
+        "F-P0-03"
+      ],
+      "architecture": [
+        "A-P0-03"
+      ],
+      "staticChain": [
+        "碰撞体/占用与渲染体的实际尺寸",
+        "层级与遮挡排序",
+        "坐标域与父变换"
+      ],
+      "legalContrast": [
+        "合法叠放与设计内密集"
+      ],
+      "cannotConclude": "单帧可见关系不签权威碰撞。"
+    },
+    "frozen": {
+      "title": "卡住／不动／无响应",
+      "blocks": [
+        "interaction",
+        "rules"
+      ],
+      "templates": [
+        "U9",
+        "U6"
+      ],
+      "progress": [
+        "F-P0-01",
+        "F-P0-03"
+      ],
+      "architecture": [
+        "A1-06"
+      ],
+      "staticChain": [
+        "状态机当前状态与转换条件",
+        "时钟/暂停/FixedUpdate 驱动",
+        "输入到提交链路"
+      ],
+      "legalContrast": [
+        "正确拒绝与合同允许等待"
+      ],
+      "cannotConclude": "稀疏重复帧不判冻结。"
+    },
+    "flicker": {
+      "title": "闪烁／错帧／跳变",
+      "blocks": [
+        "art"
+      ],
+      "templates": [
+        "U9"
+      ],
+      "progress": [],
+      "architecture": [
+        "A-P0-04"
+      ],
+      "staticChain": [
+        "多个写者同时写同一变换/材质",
+        "时序与插值来源",
+        "订阅/协程重入"
+      ],
+      "legalContrast": [
+        "批准切镜、传送、2D 滑步跳切"
+      ],
+      "cannotConclude": "终态与慢放不签连续。"
+    },
+    "perf-drop": {
+      "title": "掉帧／卡顿／内存增长",
+      "blocks": [
+        "delivery"
+      ],
+      "templates": [
+        "U9"
+      ],
+      "progress": [
+        "F1-11"
+      ],
+      "architecture": [
+        "A-P0-05",
+        "A1-11"
+      ],
+      "staticChain": [
+        "热点 caller 频率与每帧工作量",
+        "池容量饱和与分配",
+        "释放与卸载路径"
+      ],
+      "legalContrast": [
+        "预算内初始化/预热分配"
+      ],
+      "cannotConclude": "菜单均帧或空场样本不签整段。"
+    },
+    "save-loss": {
+      "title": "存档丢失／恢复错／无法继续",
+      "blocks": [
+        "delivery",
+        "rules"
+      ],
+      "templates": [
+        "U9"
+      ],
+      "progress": [
+        "F-P0-04"
+      ],
+      "architecture": [
+        "A1-08"
+      ],
+      "staticChain": [
+        "capture/import 参与者与登记",
+        "codec 与持久介质",
+        "恢复后消费者与后继"
+      ],
+      "legalContrast": [
+        "已提交不重放、未完按合同续办"
+      ],
+      "cannotConclude": "文件存在或离线 roundtrip 不签实际继续。"
+    }
+  },
+  "readProfiles": {
+    "schemaVersion": 1,
+    "base": [
+      "references/source-authority.md#current-mainline",
+      "references/source-authority.md#grounded-consideration",
+      "references/coordination.md#no-simulation",
+      "references/coordination.md#independent-input"
+    ],
+    "stages": {
+      "planning": [
+        "references/reading-guide.md#planning-round"
+      ],
+      "review": [
+        "references/review-standard.md#decision-order",
+        "references/coordination.md#wave-review"
+      ]
+    },
+    "roles": {
+      "dialogue": [
+        "references/dialogue-coordinator.md#dialogue-duty"
+      ],
+      "worker": [
+        "references/reading-guide.md#worker-round"
+      ],
+      "progress": [
+        "references/progress-correctness.md#obligations-progress"
+      ],
+      "architecture": [
+        "references/architecture-ecology-playability.md#obligations-architecture"
+      ],
+      "target": [
+        "references/target-art-review.md#obligations-target"
+      ]
+    },
+    "domains": {
+      "general": [],
+      "maintenance": [
+        "references/skill-improvement.md",
+        "references/source-authority.md#rule-write"
+      ],
+      "unity": []
+    },
+    "domainStages": {
+      "unity:review": [
+        "references/reading-guide.md#unity-round"
+      ],
+      "unity:planning": [
+        "references/reading-guide.md#unity-planning"
+      ]
+    }
+  }
+}

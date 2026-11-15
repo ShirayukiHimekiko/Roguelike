@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["scope", "design_extraction", "capability_pack", "transfer_trial", "mechanical_status", "effect_status", "limitations"],
+  "properties": {
+    "scope": {"type": "string", "minLength": 1},
+    "design_extraction": {"type": "string", "minLength": 1},
+    "capability_pack": {"type": "string", "minLength": 1},
+    "transfer_trial": {"type": "object", "required": ["request", "artifact", "outcome", "evidence"], "properties": {"request": {"type": "string", "minLength": 1}, "artifact": {"type": "string", "minLength": 1}, "outcome": {"enum": ["passed", "failed", "unobserved"]}, "evidence": {"type": "string", "minLength": 1}}, "additionalProperties": false},
+    "mechanical_status": {"enum": ["passed", "blocked", "not_run"]},
+    "effect_status": {"enum": ["observed", "pending", "not_applicable"]},
+    "consumer_trial": {
+      "type": "object",
+      "description": "Declared real-consumer reuse. Entry is relative to consumer-root (workspace if omitted); artifact and evidence are relative to workspace. References do not certify actual execution or quality.",
+      "required": ["consumer", "request", "entry", "artifact", "outcome", "evidence"],
+      "properties": {
+        "consumer": {"type": "string", "minLength": 1},
+        "request": {"type": "string", "minLength": 1},
+        "entry": {"type": "string", "minLength": 1},
+        "artifact": {"type": "string", "minLength": 1},
+        "outcome": {"enum": ["passed", "failed", "unobserved"]},
+        "evidence": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "limitations": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,9 @@
+jsonschema>=4.18,<5
+PyYAML>=6,<7
+# scripts/refgrab.py（联网取材）；缺了也能跑基本搜索，doctor 子命令会逐项提示
+Pillow>=10
+yt-dlp>=2025.1
+imageio-ffmpeg>=0.5
+pypdf>=4
+# 可选：pymupdf（AGPL 许可）只用于 `refgrab pdf --images` 提取插图，仅本机研究用，不随 Skill 分发：
+#   python -m pip install --user pymupdf

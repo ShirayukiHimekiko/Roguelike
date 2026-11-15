@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Learn & Make Skill"
+  short_description: "先还原用户意图、取点名参照、写可检验目标，尽早出完整粗版并对比返修，把方法沉淀成可复用 Skill；锁定 GPT-6.1-SOL"
+  default_prompt: "用 $agent-learn-make-skill：先按用户的有效期望选本批结果和第一个作者动作；实质任务开工 10 分钟内按 references/intent-and-drift.md 写 INTENT.md，第一张粗版出来时向用户回读理解（不停下等回复），每波开头查漂移，目标变更只由用户批准。要靠看/听判断品质的任务，先用 scripts/refgrab.py 取到用户点名对象的实机参照（不可替换，三个来源都失败才问用户；每个点名对象有 1 张实机图就开工），写 TARGET.md，尽早做出第一张完整粗版，和参照并排对比，选差距最大的 3 处作为查源和实验的目标。任何 AI 的首次结果都按 comparison-and-regression#independent-first-result 由另一个真实 AI 实际核过后才采用；保留原授权、已证事实和成熟正常。Skill 草稿从第一轮就开始写。恢复按 task-continuity 接回原决定、失败、预算、适用陪审的职责和唯一写入者，不因阶段 completed 或换窗口重置。给人看的内容用普通开发者能直接读懂的中文。全程使用 gpt-6.1-sol/xhigh，不新建后台服务。"

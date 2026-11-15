@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="一句话安装，一句话使用。按场景学会陪审介入、收尾辩论和开始考虑。">
+  <title>陪审 · 一句话上手</title>
+  <link rel="stylesheet" href="tutorial.css">
+  <script src="tutorial.js" defer></script>
+</head>
+<body>
+  <svg class="icon-library" aria-hidden="true"><defs>
+    <symbol id="i-package" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5ZM3 8v9l9 5 9-5V8M12 13v9M7.5 5.5l9 5"/></symbol>
+    <symbol id="i-start" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8V4Z"/></symbol>
+    <symbol id="i-jury" viewBox="0 0 24 24"><path d="M8 3H3v18h5M16 3h5v18h-5M9 8l-3 4 3 4M15 8l3 4-3 4"/></symbol>
+    <symbol id="i-debate" viewBox="0 0 24 24"><path d="M3 4h13v10H8l-5 4V4ZM16 8h5v13l-5-3h-5v-4"/></symbol>
+    <symbol id="i-think" viewBox="0 0 24 24"><path d="M9 19h6M10 22h4M8 15a7 7 0 1 1 8 0l-1 1H9l-1-1ZM12 5v3M9 9l3 3 3-3"/></symbol>
+    <symbol id="i-core" viewBox="0 0 24 24"><path d="m12 3 8 5v8l-8 5-8-5V8l8-5ZM4 8l8 5 8-5M12 13v8"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></symbol>
+  </defs></svg>
+  <a class="skip" href="#use">跳到当前教学</a>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#use" aria-label="陪审，一句话上手"><span class="brand-mark" aria-hidden="true"><i></i><i></i></span><span class="brand-name">陪审<span>一句话上手</span></span></a>
+      <div class="nav-caption">你现在想做什么？</div>
+      <nav class="scene-nav" aria-label="使用场景">
+        <a href="#install" data-scene="install" aria-label="安装"><svg><use href="#i-package"/></svg><span><span class="nav-full">安装</span><span class="nav-short">安装</span><span class="nav-detail">把完整包交给 AI</span></span></a>
+        <a href="#use" data-scene="use" aria-label="陪审介入，一句话使用"><svg><use href="#i-start"/></svg><span><span class="nav-full">陪审介入</span><span class="nav-short">介入</span><span class="nav-detail">一句话，就能使用</span></span></a>
+        <a href="#close" data-scene="close" aria-label="收尾或辩论"><svg><use href="#i-debate"/></svg><span><span class="nav-full">收尾 / 辩论</span><span class="nav-short">收尾</span><span class="nav-detail">让成果经得起核查</span></span></a>
+        <a href="#consider" data-scene="consider" aria-label="开始考虑"><svg><use href="#i-think"/></svg><span><span class="nav-full">开始考虑</span><span class="nav-short">考虑</span><span class="nav-detail">把你的想法接进去</span></span></a>
+        <a href="#core" data-scene="core" aria-label="设计内核"><svg><use href="#i-core"/></svg><span><span class="nav-full">设计内核</span><span class="nav-short">内核</span><span class="nav-detail">简单背后的协作方式</span></span></a>
+      </nav>
+      <div class="sidebar-bottom"><span class="offline-dot"></span><span>本地教程<span class="sidebar-version">2.6.16</span></span><button type="button" id="about" aria-label="查看使用环境">?</button></div>
+    </aside>
+    <main class="workspace">
+      <header class="topbar"><span>使用指南<span class="crumb-divider">/</span><b id="current-scene-name">陪审介入</b></span><button class="motion-button" type="button" id="motion-toggle" aria-pressed="false"><span aria-hidden="true">◌</span> 减弱动画</button></header>
+      <div class="scene-viewport" id="scene-viewport">
+        <section class="scene" id="use" aria-labelledby="use-title">
+          <div class="scene-heading"><p class="eyebrow">从你的目标开始</p><h1 id="use-title">有任务，<em>叫陪审。</em></h1></div>
+          <div class="lesson-grid">
+            <div class="lesson-copy"><p class="say-label">对工作 AI 说</p><p class="command" data-command>陪审介入</p><button class="copy-button" type="button"><svg><use href="#i-copy"/></svg>复制这句话</button><p class="lesson-hint">正在做事，就在当前对话说这句。<br>工作 AI 制作，两位陪审各自核查。</p><div class="lesson-result"><span>你只需要</span><strong>说清楚想得到什么。</strong></div></div>
+            <div class="visual" data-art="use"><div class="visual-label"><span class="live-dot"></span>一句话之后</div><div class="goal-token"><span class="tiny-kicker">从这里出发</span><strong>你的目标</strong><span class="goal-line"></span></div><div class="flow-stem" aria-hidden="true"></div><div class="team-nodes"><div class="team-node node-f"><b>F</b><strong>功能结果</strong><span>有没有做到？</span></div><div class="team-node node-maker"><b>↗</b><strong>工作 AI</strong><span>持续制作</span></div><div class="team-node node-a"><b>A</b><strong>架构体验</strong><span>做法好不好？</span></div></div><div class="result-strip"><span class="result-mark">↳</span><span class="phase-text" data-phase="0">先接住你的目标</span><span class="phase-text" data-phase="1">各自看原件，形成独立判断</span><span class="phase-text" data-phase="2">意见接回制作，再核真实结果</span></div><span class="demo-note">机制演示，不会执行项目或调用模型</span></div>
+          </div>
+        </section>
+        <section class="scene" id="install" aria-labelledby="install-title">
+          <div class="scene-heading"><p class="eyebrow">第一次用，先交给 AI</p><h1 id="install-title">安装，<em>说一句。</em></h1></div>
+          <div class="lesson-grid">
+            <div class="lesson-copy"><p class="say-label">附上完整包，然后说</p><p class="command" data-command>安装这个陪审Skill。</p><button class="copy-button" type="button"><svg><use href="#i-copy"/></svg>复制安装这句话</button><p class="lesson-hint">把压缩包或完整文件夹交给 AI。<br>安装位置、完整性和发现检查，交给它处理。</p><div class="lesson-result"><span>完成后</span><strong>直接说任务，开始用。</strong></div></div>
+            <div class="visual" data-art="install"><div class="visual-label"><span class="live-dot"></span>从一份包，到可以使用</div><div class="install-flow"><div class="package-node"><svg viewBox="0 0 96 96" aria-hidden="true"><path d="m48 12 31 17-31 18-31-18z" fill="#6584ff"/><path d="M17 29v37l31 18V47z" fill="#3b62ed"/><path d="m48 47 31-18v37L48 84z" fill="#254cd7"/><path d="m32 21 31 17v17l-10 6V44L22 27z" fill="#b5c4ff"/></svg><strong>完整包</strong><span>ZIP / 文件夹</span></div><div class="install-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg><i></i></div><div class="ai-window"><div class="ai-window-head"><span class="ai-dot">↗</span><strong>你的工作 AI</strong><span class="window-dots" aria-hidden="true">•••</span></div><div class="user-bubble">安装这个陪审Skill。</div><div class="install-reply"><span class="phase-text" data-phase="0">接收你交来的完整包</span><span class="phase-text" data-phase="1">核位置，再安装</span><span class="phase-text" data-phase="2">确认能发现，再交回使用</span></div><div class="ready-pill"><span>✓</span>可以开始</div></div></div><div class="install-steps"><span>交给 AI</span><i></i><span>一句安装</span><i></i><span>确认可用</span></div><span class="demo-note">安装机制示意；网页本身不安装任何内容</span></div>
+          </div>
+        </section>
+        <section class="scene" id="close" aria-labelledby="close-title">
+          <div class="scene-heading"><p class="eyebrow">差不多做完了？让结果经得起追问</p><h1 id="close-title">收尾前，<em>再问到底。</em></h1></div>
+          <div class="lesson-grid">
+            <div class="lesson-copy"><p class="say-label">对工作 AI 说</p><p class="command" data-command>开始收尾</p><button class="copy-button" type="button"><svg><use href="#i-copy"/></svg>复制这句话</button><div class="command-switch" aria-label="选择收尾或辩论口令"><button type="button" data-close-mode="close" aria-pressed="true">收尾</button><button type="button" data-close-mode="debate" aria-pressed="false">辩论</button></div><p class="lesson-hint">F 拿结果说话，A 找最强反例。<br>原需求、真实证据和必要未闭，一起核回。</p><div class="lesson-result"><span>不是说结束，就算结束</span><strong>有依据才续修，足证才收尾。</strong></div></div>
+            <div class="visual" data-art="close"><div class="visual-label"><span class="live-dot"></span>让两种视角真正交锋</div><div class="closing-source"><span>原始目标</span><i>↔</i><span>当前成果</span></div><div class="debate-pair"><div class="debate-person debate-f"><b>F</b><strong>正方 · 核结果</strong><p>真实结果<br>达到了吗？</p></div><div class="debate-between" aria-hidden="true">⇄</div><div class="debate-person debate-a"><b>A</b><strong>反方 · 找反例</strong><p>最强反例<br>是什么？</p></div></div><div class="closing-paths"><span><i>↻</i>有依据，才续修</span><span><i>✓</i>足证，才收尾</span></div><div class="result-strip"><span class="result-mark">↳</span><span class="phase-text" data-phase="0">先把成果对回原始目标</span><span class="phase-text" data-phase="1">真实质询，双方各自给依据</span><span class="phase-text" data-phase="2">依证据决定下一步，不预定通过</span></div><span class="demo-note">收尾机制演示，不代表真实裁定或任务已完成</span></div>
+          </div>
+        </section>
+        <section class="scene" id="consider" aria-labelledby="consider-title">
+          <div class="scene-heading"><p class="eyebrow">发现不对，或者有了新想法</p><h1 id="consider-title">想到了，<em>直接说。</em></h1></div>
+          <div class="lesson-grid">
+            <div class="lesson-copy"><p class="say-label">用这句开头</p><p class="command" data-command>开始考虑：</p><button class="copy-button" type="button"><svg><use href="#i-copy"/></svg>复制这个开头</button><p class="lesson-hint">后面接上你的想法、疑问或要求。<br>陪审各自回应，工作 AI 把意见接回行动。</p><div class="lesson-result"><span>你说出的考虑</span><strong>要改变判断，也要落到行动。</strong></div></div>
+            <div class="visual" data-art="consider"><div class="visual-label"><span class="live-dot"></span>让你的想法进入实际决定</div><div class="thought-input"><span class="thought-icon">你</span><div><span>开始考虑：</span><strong>你的问题或想法</strong></div><i aria-hidden="true">↘</i></div><div class="thought-responses"><div><b>F</b><span>对回真实需求<strong>给本人意见与依据</strong></span></div><div><b>A</b><span>亲核当前对象<strong>给本人意见与依据</strong></span></div></div><div class="thought-action"><i>↳</i><span>工作 AI 接回：<strong>采用、修正，或说明理由</strong></span></div><div class="result-strip"><span class="result-mark">↳</span><span class="phase-text" data-phase="0">直接说想法，不必换成固定表格</span><span class="phase-text" data-phase="1">各自实答，同伴不能代答</span><span class="phase-text" data-phase="2">给出处理与核回，不能只说“已考虑”</span></div><span class="demo-note">回应过程示意，不代表真实陪审已接收消息</span></div>
+          </div>
+        </section>
+        <section class="scene" id="core" aria-labelledby="core-title">
+          <div class="scene-heading"><p class="eyebrow">少说流程，多做对结果</p><h1 id="core-title">简单用，<em>认真做。</em></h1></div>
+          <div class="lesson-grid">
+            <div class="lesson-copy"><p class="say-label" id="core-topic">设计内核 / 品质</p><p class="command" data-command>拒绝无效堆叠。<br>修问题，不停摆。</p><p class="lesson-hint">依据断裂就查因改法，目标与未闭仍接回。<br>正常路径继续，目标不被偷换。</p><div class="core-tabs" role="group" aria-label="选择设计内核"><button type="button" data-feature="quality" aria-pressed="true">品质</button><button type="button" data-feature="plan" aria-pressed="false">同版</button><button type="button" data-feature="evidence" aria-pressed="false">证据</button><button type="button" data-feature="advance" aria-pressed="false">推进</button><button type="button" data-feature="resources" aria-pressed="false">资源</button><button type="button" data-feature="handoff" aria-pressed="false">接续</button></div><div class="lesson-result"><span>核心始终是</span><strong>让真正的结果兑现你的目标。</strong></div></div>
+            <div class="visual" data-art="join"><div class="visual-label"><span class="live-dot"></span>指出问题，也带回下一步</div><div class="review-tags"><span class="tag-f"><b>F</b>核结果</span><span class="tag-a"><b>A</b>核做法与体验</span></div><div class="product-sketch"><div class="sketch-title"><span></span><strong>你的当前任务</strong><i>↗</i></div><div class="sketch-body"><div class="main-task"><span class="sketch-line wide"></span><span class="sketch-line"></span><div class="main-action">主要目标</div></div><div class="clutter"><span>无用内容</span><span>重复步骤</span></div></div></div><div class="result-strip"><span class="result-mark">↳</span><span class="phase-text" data-phase="0">接当前任务，不让你从头填表</span><span class="phase-text" data-phase="1">P0 阻断，打回无效堆叠</span><span class="phase-text" data-phase="2">删改无效负担，保正常路径继续</span></div><span class="demo-note">审查机制演示，不代表真实陪审已经创建</span></div>
+          </div>
+        </section>
+      </div>
+      <footer class="transport"><div class="playback"><button type="button" id="play-toggle" aria-label="暂停演示">Ⅱ</button><button type="button" id="replay" aria-label="重看演示">↻</button><div class="phase-picker" aria-label="演示进度"><button type="button" data-step="0" aria-current="step"><span>01</span><b>接住目标</b></button><i></i><button type="button" data-step="1"><span>02</span><b>各自核查</b></button><i></i><button type="button" data-step="2"><span>03</span><b>继续推进</b></button></div></div><p id="play-status" role="status">可暂停，也可直接选一步看。</p></footer>
+      <noscript><p class="nojs-note">动画与自动复制需JavaScript。左栏仍可切场景，短句可选中复制。</p></noscript>
+    </main>
+  </div>
+  <dialog id="about-dialog" aria-labelledby="about-title"><button class="dialog-close" type="button" aria-label="关闭">×</button><span class="eyebrow">使用前</span><h2 id="about-title">把包交给能操作文件的 AI。</h2><p>宿主需支持本地 Skill 和真实原生陪审，且有可用模型服务。模型/API费用另计。</p><p>网页只是教学和复制入口。实际安装、执行与发布，仍由你的指令和当前环境决定。</p><a href="../../使用授权.md">查看使用授权 ↗</a></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

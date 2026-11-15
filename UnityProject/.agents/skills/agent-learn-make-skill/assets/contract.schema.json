@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schemaVersion", "name", "version", "scope", "status", "capability", "triggers", "exclusions", "dependencies", "sources", "input_schema", "output_schema", "principles", "checks", "trials", "limitations"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "name": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 64},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "scope": {"type": "string", "minLength": 1},
+    "status": {"enum": ["candidate", "trialed", "adopted"]},
+    "capability": {"type": "string", "minLength": 1},
+    "triggers": {"$ref": "#/$defs/texts"},
+    "exclusions": {"$ref": "#/$defs/texts"},
+    "dependencies": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "sources": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["path", "sha256", "role"], "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "role": {"type": "string", "minLength": 1}}, "additionalProperties": false}},
+    "input_schema": {"type": "object"},
+    "output_schema": {"type": "object"},
+    "principles": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["id", "kind", "authority", "rule", "why", "when", "unless", "evidence", "check_ids"], "properties": {"id": {"type": "string", "minLength": 1}, "kind": {"enum": ["hard", "convention", "heuristic", "hypothesis"]}, "authority": {"enum": ["user_requirement", "project_contract", "validated_invariant", "observed_implementation", "analysis"]}, "rule": {"type": "string", "minLength": 1}, "why": {"type": "string", "minLength": 1}, "when": {"type": "string", "minLength": 1}, "unless": {"type": "string", "minLength": 1}, "evidence": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["source", "locator"], "properties": {"source": {"type": "string"}, "locator": {"type": "string", "minLength": 1}}, "additionalProperties": false}}, "check_ids": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false}},
+    "checks": {"type": "array", "items": {"type": "object", "required": ["id", "argv", "timeout_seconds"], "properties": {"id": {"type": "string", "minLength": 1}, "argv": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}, "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 600}}, "additionalProperties": false}},
+    "trials": {"type": "array", "items": {"type": "object", "required": ["task", "changed_condition", "artifact", "result", "evidence"], "properties": {"task": {"type": "string", "minLength": 1}, "changed_condition": {"type": "string", "minLength": 1}, "artifact": {"type": "string", "minLength": 1}, "result": {"enum": ["passed", "failed", "unobserved"]}, "evidence": {"type": "string", "minLength": 1}}, "additionalProperties": false}},
+    "limitations": {"$ref": "#/$defs/texts"},
+    "parameter_notes": {"type": "array", "items": {"type": "object"}},
+    "wiring_notes": {"type": "array", "items": {"type": "object"}},
+    "space_notes": {"type": "array", "items": {"type": "object"}}
+  },
+  "additionalProperties": false,
+  "$defs": {"texts": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}}
+}
