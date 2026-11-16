@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using Cysharp.Threading.Tasks;
 using GameLogic;
 #if ENABLE_OBFUZ
 using Obfuz;
@@ -25,22 +26,33 @@ public partial class GameApp
     public static void Entrance(object[] objects)
     {
         // GameEventHelper.Init();
+        
         _hotfixAssembly = (List<Assembly>)objects[0];
+        
         Log.Warning("======= 看到此条日志代表你成功运行了热更新代码 =======");
+        
         Log.Warning("======= Entrance GameApp =======");
-        StartGameLogic();
+        
+        StartGameLogic().Forget();
+        
         Utility.Unity.AddDestroyListener(ReleaseLogic);
     }
 
-    private static void StartGameLogic()
+    private static async UniTaskVoid StartGameLogic()
     {
+        await UniTask.Yield();
         
+        GameModule.UI.ShowUIAsync<StartUI>();
+        
+        GameAppManager.Instance.Start();
     }
 
     private static void ReleaseLogic()
     {
         SingletonSystem.Release();
+        
         GameModule.Shutdown();
+        
         Utility.Unity.RemoveDestroyListener(ReleaseLogic);
     }
 }

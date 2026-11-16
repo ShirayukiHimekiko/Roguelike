@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using Cysharp.Threading.Tasks;
@@ -283,6 +283,26 @@ namespace TEngine
             _behaviour.RemoveOnApplicationPauseListener(action);
         }
 
+        /// <summary>
+        /// 为给外部提供的OnApplicationQuit注册事件。
+        /// </summary>
+        /// <param name="action"></param>
+        public void AddOnApplicationQuitListener(Action action)
+        {
+            _MakeEntity();
+            _behaviour.AddOnApplicationQuitListener(action);
+        }
+
+        /// <summary>
+        /// 为给外部提供的OnApplicationQuit反注册事件。
+        /// </summary>
+        /// <param name="action"></param>
+        public void RemoveOnApplicationQuitListener(Action action)
+        {
+            _MakeEntity();
+            _behaviour.RemoveOnApplicationQuitListener(action);
+        }
+
         #endregion
 
         private void _MakeEntity()
@@ -307,6 +327,7 @@ namespace TEngine
             private event Action OnDrawGizmosEvent;
             private event Action OnDrawGizmosSelectedEvent;
             private event Action<bool> OnApplicationPauseEvent;
+            private event Action OnApplicationQuitEvent;
 
             void Update()
             {
@@ -363,6 +384,14 @@ namespace TEngine
                 if (OnApplicationPauseEvent != null)
                 {
                     OnApplicationPauseEvent(pauseStatus);
+                }
+            }
+
+            private void OnApplicationQuit()
+            {
+                if (OnApplicationQuitEvent != null)
+                {
+                    OnApplicationQuitEvent();
                 }
             }
 
@@ -440,6 +469,16 @@ namespace TEngine
                 OnApplicationPauseEvent -= action;
             }
 
+            public void AddOnApplicationQuitListener(Action action)
+            {
+                OnApplicationQuitEvent += action;
+            }
+
+            public void RemoveOnApplicationQuitListener(Action action)
+            {
+                OnApplicationQuitEvent -= action;
+            }
+
             public void Release()
             {
                 UpdateEvent = null;
@@ -449,6 +488,7 @@ namespace TEngine
                 OnDrawGizmosSelectedEvent = null;
                 DestroyEvent = null;
                 OnApplicationPauseEvent = null;
+                OnApplicationQuitEvent = null;
             }
         }
     }

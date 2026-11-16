@@ -56,6 +56,14 @@ public class GameModule
 
     #endregion
 
+    #region 游戏模块
+
+    public static GameAppManager GameApp => _gameApp ??= GameAppManager.Instance;
+
+    private static GameAppManager _gameApp;
+
+    #endregion
+
     private static T Get<T>() where T : class
     {
         T module = ModuleSystem.GetModule<T>();
@@ -77,5 +85,7 @@ public class GameModule
         _scene = null;
         _timer = null;
         _localization = null;
+
+        _gameApp = null;
     }
 }

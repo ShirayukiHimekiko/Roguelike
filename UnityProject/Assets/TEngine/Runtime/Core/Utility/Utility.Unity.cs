@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -309,6 +309,26 @@ namespace TEngine
             {
                 _MakeEntity();
                 _updateDriver.RemoveOnApplicationPauseListener(fun);
+            }
+
+            /// <summary>
+            /// 为给外部提供的OnApplicationQuit注册事件。
+            /// </summary>
+            /// <param name="fun"></param>
+            public static void AddOnApplicationQuitListener(Action fun)
+            {
+                _MakeEntity();
+                _updateDriver.AddOnApplicationQuitListener(fun);
+            }
+
+            /// <summary>
+            /// 为给外部提供的OnApplicationQuit反注册事件。
+            /// </summary>
+            /// <param name="fun"></param>
+            public static void RemoveOnApplicationQuitListener(Action fun)
+            {
+                _MakeEntity();
+                _updateDriver.RemoveOnApplicationQuitListener(fun);
             }
 
             #endregion

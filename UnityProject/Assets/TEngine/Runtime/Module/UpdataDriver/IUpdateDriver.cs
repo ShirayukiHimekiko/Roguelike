@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Internal;
@@ -114,6 +114,18 @@ namespace TEngine
         /// </summary>
         /// <param name="action"></param>
         public void RemoveOnApplicationPauseListener(Action<bool> action);
+
+        /// <summary>
+        /// 为给外部提供的OnApplicationQuit注册事件。
+        /// </summary>
+        /// <param name="action"></param>
+        public void AddOnApplicationQuitListener(Action action);
+
+        /// <summary>
+        /// 为给外部提供的OnApplicationQuit反注册事件。
+        /// </summary>
+        /// <param name="action"></param>
+        public void RemoveOnApplicationQuitListener(Action action);
 
         #endregion
     }
