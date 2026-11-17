@@ -2,6 +2,8 @@
 
 2026-11-17 · 待确认 · 本文是实施提案，未改代码、包配置或场景
 
+> 历史比选。项目已选择方案 B，并明确按文件将 ET10 源码迁入项目目录，Entitas 承载战斗规则。本篇的方案 A、UPM 目录和 `LSWorld` 仿真仅供比选。当前实施按 [TEngine 适配方案](Project_B-ET10适配TEngine项目模块实施方案.md) 和 [ET10 与 Entitas 战斗逻辑适配方案](Project_B-ET10与Entitas战斗逻辑适配方案.md) 执行。
+
 ## 1. 要达成什么
 
 **以 ET10 `master` 官方源码为迁移底稿，把 ET 的运行时、Lockstep 和会话/网络移进 Project B 的独立模块。** 先让新战斗在离线时跑 ET 的权威房间，再把输入和确认消息接到 ET 会话，最终让两台客户端与独立服务端跑同一个逻辑世界。新战斗以 ET 的 `LSWorld/LSEntity` 为主，不要求沿用 Project B 现有的帧驱动、战斗草稿或 Entitas 调度。TEngine 继续负责现有 Unity 应用的启动、资源和表现，通过一层桥调用 ET。

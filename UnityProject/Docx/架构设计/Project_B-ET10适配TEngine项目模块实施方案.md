@@ -4,14 +4,14 @@
 
 ## 1. 目标与交付范围
 
-**从第一阶段就以 `GameModule.Battle` 作为项目的战斗入口。** TEngine 负责应用生命周期、异步资源、配置、界面、事件和诊断。ET10 负责 Fiber、逻辑世界、权威帧、预测回滚和网络会话。Unity 单机和未来的独立服务端运行同一份战斗规则，并使用相同的帧输入、快照和录像格式。
+**从第一阶段就以 `GameModule.Battle` 作为项目的战斗入口。** TEngine 负责应用生命周期、资源、配置和表现。迁入的 ET10 负责 Fiber、帧调度、权威确认、预测回滚和网络会话，Entitas 负责战场状态与玩法规则。双端从 Project B 自己的源码目录构建，共用帧输入、快照和录像格式。目录与生成规则见 [ET10 与 Entitas 战斗逻辑适配方案](Project_B-ET10与Entitas战斗逻辑适配方案.md#6-把源码拆入-project-b-的模块)。
 
 源代码基线固定为用户已选定的 ET10 `master` 提交 `743c635dd5b0f6f6bab549c0093382c85f3f8307`。现有简易帧驱动和战斗草稿不作为新战斗的设计约束。本文承接上次调研，单独给出方案 B 的落地顺序。上游 Demo 用于核对移植差异，Project B 从第一场可玩样例起就通过 TEngine 门面进入。[ET10 固定提交][et10] · [ET 源码调研](Unity%20ET框架全量源码调研与逻辑帧驱动.md) · [原迁移方式对照](Project_B-ET逻辑帧与网络迁移实施方案.md)
 
 | 里程碑 | 用户可以看到什么 | 实施范围 |
 | --- | --- | --- |
 | **首期单机** | 从 TEngine 启动一场 ET 房间，部署单位，看到移动、命中和伤害。可以暂停、继续、退出、重开和播放录像。 | B0–B2。单机权威房间、表现桥、快照和独立 .NET 重播。 |
-| **后续局域网联机** | 两个客户端进入独立 .NET 服务端上的同一房间。在延迟、预测偏差和短断线后重新收敛到相同的权威结果。 | B3–B4。复用 ET 原生会话和 UDP/KCP，补齐输入封存、预测、状态恢复及诊断。 |
+| **本期内部联机** | 两个联调客户端进入独立 .NET 服务端上的同一房间。在延迟、预测偏差和短断线后重新收敛到相同的权威结果。 | B3–B4。迁入 ET 会话和 UDP/KCP，补齐输入封存、预测、状态恢复及诊断；玩家发行仍只开放单机。 |
 | **产品上线** | 按实际平台、人数和运营需求验收。 | 后续按需求规划账号、匹配、持久化、路由、服务发现和发布拓扑。 |
 
 实施提案暂用 ET Demo 的 **20 Hz** 和双客户端作为联调基线。步频是房间规则参数，正式值依据玩法手感、实际负载和目标平台确定。首个战斗样例采用规则简单的移动，规模化寻路和避障以后按玩法接入。
@@ -27,7 +27,7 @@ flowchart TD
     HOST --> LOCAL["本地权威房间"]
     HOST --> CLIENT["ET 客户端会话、确认与预测"]
     CLIENT <-->|"ET Session / UDP / KCP"| SERVER["独立 .NET 进程 / 权威房间"]
-    LOCAL --> SIM["共享战斗合同、ET LSWorld、规则与回放"]
+    LOCAL --> SIM["共享战斗合同、Entitas 仿真与回放"]
     CLIENT --> SIM
     SERVER --> SIM
 ```
@@ -36,11 +36,11 @@ flowchart TD
 | --- | --- | --- |
 | `Assets/GameScripts/HotFix/GameLogic/GameModule.cs` | 新增 `GameModule.Battle`，公开 `IBattleService`，在应用释放时清空缓存。 | 游戏业务和 UI → 门面。 |
 | `Assets/GameScripts/HotFix/GameLogic/Module/BattleModule/` | `BattleService` 负责开局、退出、单机暂停、状态查询和事件。ET Unity 宿主适配负责注册、Pump、取消及清理。该目录还负责配置快照装配、表现桥和调试读数。 | `GameLogic` → 既有 TEngine 模块、共享战斗层、ET Unity 适配入口。 |
-| `Packages/com.projectb.battle/Runtime/` | 建议按 `Contracts`、`Simulation`、`Lockstep` 分目录。定义可跨端的命令与结果、LS 实体与规则、房间推进、录像和快照。 | 同一份源由 Unity 和 .NET 构建。共享层向下引用必要 ET 包，保持 `UnityEngine`、`GameModule`、YooAsset 与 UniTask 零依赖。 |
-| `Packages/cn.etetet.*` | 保留同一提交的上游源、包名和来源。ET 边界适配放项目目录。确需修改的上游文件单独记补丁。 | 由共享层和宿主使用。上游层对 Project B 无反向依赖。 |
-| `Tools/ProjectB.Server/` | 首先提供纯 .NET 重播入口，随后提供独立 ET App、会话监听和权威房间装配。构建配置显式选入共享源码和生成物。 | .NET 宿主 → 同版共享层与 ET 原生运行时。 |
+| `Assets/GameScripts/HotFix/GameLogic/Module/BattleModule/Shared/` | `Contracts`、`Simulation`、`Lockstep` 和 `Protocol/Generated`。维护 Entitas 规则、迁入的房间及帧调度、快照、回放和双端协议。 | Unity 和 .NET 构建同一份源码。共享代码保持 `UnityEngine`、`GameModule`、YooAsset 与 UniTask 零依赖。 |
+| `Assets/GameScripts/Infrastructure/EtRuntime/` | 按职责提取 ET 的 Core、Fiber、序列化、定点数学及通用网络源码，记录原始路径和项目改动。 | 由共享层和宿主使用。运行时不反向依赖 `GameLogic`。 |
+| `Tools/ProjectB.Server/`、`Tools/ProjectB.CodeGen/` | 按仓库根目录定位独立服务端入口、协议定义和生成工具，构建显式选入共享源码和生成物。 | .NET 宿主 → 同版共享源码和迁入的运行时。 |
 
-Unity 新包里的目录不必各自拥有 asmdef。首期将共享程序集作为稳定的 Unity 编译产物接入，`GameLogic` 的 HybridCLR 热更层放宿主和表现。协议、序列化和模拟规则由两端成对构建和发布。后续若把共享规则也纳入热更，房间需要绑定会话开始时的规则版本与配置，且版本滞留策略需要单独设计。
+ET 源码直接放入项目目录，不安装 ET UPM 包。首期 `BattleModule/Shared/` 随现有 `GameLogic.asmdef` 编译，底层 `ProjectB.EtRuntime` 单独作为 Unity AOT 程序集。独立 .NET 项目从上述目录显式选入同一份纯逻辑源。协议、序列化和模拟规则由两端成对构建和发布，已开房间固定用开局时的规则和配置。
 
 现有 `GameApp.Entrance` 启动热更业务，`GameAppManager` 已持有应用 FSM。`SingletonSystem` 自动识别 `IUpdate` 和 `ILateUpdate` 并接向 TEngine UpdateDriver。这些就是方案 B 的接入位置。应用 FSM 管理运行、切后台和退出，战斗服务另持有当前战斗状态，使同一应用生命周期能打开多场战斗。[GameApp](../../Assets/GameScripts/HotFix/GameLogic/GameApp.cs) · [GameModule](../../Assets/GameScripts/HotFix/GameLogic/GameModule.cs) · [GameAppManager](../../Assets/GameScripts/HotFix/GameLogic/Module/GameAppModule/GameAppManager.cs) · [SingletonSystem](../../Assets/GameScripts/HotFix/GameLogic/SingletonSystem/SingletonSystem.cs)
 
@@ -49,11 +49,11 @@ Unity 新包里的目录不必各自拥有 asmdef。首期将共享程序集作�
 | 能力 | 从 ET10 迁入什么 | 方案 B 的适配点 |
 | --- | --- | --- |
 | **运行时和驱动** | `cn.etetet.core` 的 World、FiberManager、Entity/System、ETTask、时间与 Actor 分派，以及生成器需要的公共类型。 | Unity 宿主通过 TEngine 创建、驱动和释放。同一进程使用一个 ET World。底层日志经适配发给 TEngine，服务端可沿用自己的日志实现。 |
-| **仿真与定点数** | `cn.etetet.lsentity` 的 LSWorld、LSEntity、LSUpdater 和回滚分派，以及 `cn.etetet.truesync` 的定点数学和 RNG。 | 用 Project B 规则取代示例移动和角色数据。战斗编排显式定义阶段顺序。 |
+| **仿真与定点数** | 提取 `cn.etetet.truesync` 的必要定点数学和 RNG；参考 `cn.etetet.lsentity` 的推进与回滚调用点。 | Entitas `Battle` Context 维护战场。房间的步进、快照和恢复统一接 `EntitasBattleSimulation`。 |
 | **房间、时钟和历史** | `cn.etetet.lockstep` 的 Room、FixedTimeCounter、FrameBuffer、客户端／服务端 Updater、Replay 和回滚链。 | 房间由项目服务装配。单机与联机共用权威输入和 Step。补显式帧号、已提交水位、槽位帧戳和完整快照。 |
 | **协议和会话** | ET 的协议生成、MemoryPack、Session、NetComponent、消息分派及 KCP/UDP。 | Project B 定义握手、进房、输入、确认、终局与恢复合同。网络层将值数据交给房间，Unity 门面管理连线状态。 |
 | **启动与资源** | 参考 Loader 的注册顺序、ET Unity Init 和 .NET App 的启动结构。 | TEngine 宿主适配装配 ET 的必要服务和代码注册。配置从 Luban 投影为共享值，YooAsset 管理客户端场景、对象和表现资源。 |
-| **运行与生成依赖** | 加入实际编译和注册所需的包、生成物、宏及第三方运行库。 | 为原版样例和项目运行时分别建依赖清单。先定位 Loader、GateSession、RoomRoot 与服务发现的引用，再裁剪 Demo 的服务和资源依赖。 |
+| **运行与生成依赖** | 迁入实际编译和注册所需的源码、生成物、宏及第三方运行库。 | 把上游包扫描替换为项目路径和显式注册。为原版样例和项目运行时分别建依赖清单。 |
 
 上游工程的 Unity 版本是 **2022.3.62f3**，当前 Project B 是 **6000.0.69f1**。移植阶段要分别核对上游样例和目标 Player 的生成器、MemoryPack、IL2CPP/AOT 与 Socket 路径。计划保留上游 `net8.0` 工程结构作为服务端基线，实际发布运行时在部署阶段确定。Lockstep 清单的声明版本与仓库内置包版本存在差异，导入依赖时以固定提交、实际源码和生成结果共同核对。[上游 Lockstep 包清单][etDeps] · [上游 Unity Init][etInit] · [上游服务端工程][etApp] · [项目 Unity 版本](../../ProjectSettings/ProjectVersion.txt)
 
@@ -111,15 +111,15 @@ Unity LateUpdate → ET FiberManager.LateUpdate → 主线程读取场次表现�
 
 单机使用同进程权威房间。联网后，独立服务端接受输入、封存并推进权威帧，Unity 客户端通过 Session 收到确认输入。先以确认帧模式验证闭环，再开启限步预测。预测出现偏差时从快照重算。历史过期时从服务器取得完整权威状态和连续确认帧。ET10 原示例的重连载荷包含帧号和单位位置及朝向，项目恢复协议还需覆盖能影响后续战斗的全部状态。[ET Lockstep 源码][etLs] · [ET 示例重连][etReconnect]
 
-下文的 Step 指项目对一帧的编排。实现时由该编排封存输入并调用上游的 `LSWorld.Update()` 进入 ET 逻辑系统，确认后提交对外可见的帧号。
+下文的 Step 指 `EntitasBattleSimulation.Step()`。房间封存输入，执行 Entitas 系统树的 `Execute()` 和 `Cleanup()`，再提交可见帧号和对应的快照。
 
 ## 6. 分步实施清单
 
 ### B0 · 固定源码和双端依赖
 
-- [ ] 保存上游包、路径、提交、依赖版本、第三方来源、生成物与项目补丁清单。
+- [ ] 保存上游路径、固定提交、迁入位置、依赖版本、第三方来源、生成物与项目补丁清单。
 - [ ] 在独立工作区记录原版最小 Lockstep 样例的配置和启动方式。Project B 的工程入口在 B1 直接按方案 B 接入。
-- [ ] 根据 asmdef、csproj、源生成与运行注册确定 Unity 和 .NET 的各自编译集合。列出会改变现有启动、资源和包版本的依赖，先形成明确的适配点。
+- [ ] 按项目目录建立 asmdef、csproj、源生成与运行注册的编译集合，替换 ET 包路径及扫描逻辑。列出会改变现有启动、资源和第三方版本的依赖。
 
 ```text
 固定 Git 提交 → 枚举包和生成器 → 从 LSWorld/Room/Session 追依赖
@@ -136,7 +136,7 @@ Unity LateUpdate → ET FiberManager.LateUpdate → 主线程读取场次表现�
 
 ```text
 GameModule.Battle.StartOfflineAsync → TEngine 宿主就绪 → 创建本地 Room
-Tick 到期 → SealInput → LSWorld.Step → 提交 → 主线程视图读取
+Tick 到期 → SealInput → EntitasBattleSimulation.Step → 提交 → 主线程视图读取
 ```
 
 **验收**从 TEngine 入口可以开始、推进、暂停、退出并重开一场房间。连续重开后按场次检查 Fiber、订阅和资源的实际释放。
@@ -163,7 +163,7 @@ Tick 到期 → SealInput → LSWorld.Step → 提交 → 主线程视图读取
 ```text
 两客户端 Join/Ready → 服务端建立房间并发初态
 ClientInput → ET Session → 房间队列 → 封存、执行、提交、广播
-客户端攒齐连续确认帧 → 同一 LSWorld.Step → 比较状态
+客户端攒齐连续确认帧 → 同一 EntitasBattleSimulation.Step → 比较状态
 ```
 
 **验收**两个独立客户端经实际 UDP 完成一场对局，确认流和终局一致。版本不匹配、无效的帧输入以及断开分别产生可诊断结果。
