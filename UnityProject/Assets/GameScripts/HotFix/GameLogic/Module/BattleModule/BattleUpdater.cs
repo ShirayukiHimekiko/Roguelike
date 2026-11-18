@@ -1,5 +1,3 @@
-using System;
-
 namespace GameLogic
 {
     /// <summary>
@@ -8,23 +6,18 @@ namespace GameLogic
     internal sealed class BattleUpdater
     {
         /// <summary>
-        /// 当前正在执行或最近一次已推进的帧号。
+        /// 判断下一帧是否到期。到期时确定输入并推进当局。
         /// </summary>
-        internal int CurrentFrame { get; private set; } = -1;
-
-        /// <summary>
-        /// 判断下一帧是否到期。到期时先更新帧号，再执行该帧。
-        /// </summary>
-        internal void Update(FixedTimeCounter clock, long nowMs, Action<int> executeTick)
+        internal void Update(BattleRoom room, long nowMs)
         {
-            int nextFrame = CurrentFrame + 1;
-            if (nowMs < clock.FrameTime(nextFrame))
+            int nextFrame = room.AuthorityFrame + 1;
+            if (nowMs < room.Clock.FrameTime(nextFrame))
             {
                 return;
             }
 
-            CurrentFrame = nextFrame;
-            executeTick(nextFrame);
+            BattleFrameInputs inputs = room.FrameBuffer.Seal();
+            room.Tick(nextFrame, inputs);
         }
     }
 }

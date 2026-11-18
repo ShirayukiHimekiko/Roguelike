@@ -1,10 +1,9 @@
-using System;
 using TEngine;
 
 namespace GameLogic
 {
     /// <summary>
-    /// 持有当局状态机、帧时钟和固定帧更新器。
+    /// 持有当局状态机、权威步进、帧输入和战斗世界。
     /// </summary>
     public sealed class BattleRoom
     {
@@ -15,13 +14,33 @@ namespace GameLogic
         /// </summary>
         public int CurrentFrame
         {
-            get { return Updater == null ? -1 : Updater.CurrentFrame; }
+            get { return AuthorityFrame; }
         }
 
         /// <summary>
-        /// 当局同步执行一帧战斗逻辑的入口。
+        /// 当局已经确认的权威帧号。
         /// </summary>
-        internal Action<int> ExecuteTick { get; private set; }
+        internal int AuthorityFrame { get; private set; } = -1;
+
+        /// <summary>
+        /// 通过校验并按开局顺序保存的单位数据。
+        /// </summary>
+        internal BattleUnitStartData[] InitialUnits { get; }
+
+        /// <summary>
+        /// 本地玩家在当局输入中的固定下标。
+        /// </summary>
+        internal int LocalUnitSlot { get; }
+
+        /// <summary>
+        /// 本局的帧输入缓冲。
+        /// </summary>
+        internal BattleFrameBuffer FrameBuffer { get; set; }
+
+        /// <summary>
+        /// 本局的 Entitas 战斗世界。
+        /// </summary>
+        internal BattleWorld World { get; set; }
 
         /// <summary>
         /// 当局开战时建立的帧时钟。
@@ -34,17 +53,42 @@ namespace GameLogic
         internal BattleUpdater Updater { get; set; }
 
         /// <summary>
-        /// 保存当局逻辑入口并启动战斗初始化状态。
+        /// 保存开战数据并启动战斗初始化状态。
         /// </summary>
-        internal BattleRoom(Action<int> executeTick)
+        internal BattleRoom(BattleUnitStartData[] initialUnits, int localUnitSlot)
         {
-            ExecuteTick = executeTick;
+            InitialUnits = initialUnits;
+            LocalUnitSlot = localUnitSlot;
             _fsm = GameModule.Fsm.CreateFsm(this,
                 new InitializeBattleState(),
                 new StartBattleState(),
                 new RunBattleState(),
                 new EndBattleState());
             _fsm.Start<InitializeBattleState>();
+        }
+
+        /// <summary>
+        /// 确认房间帧号，写入输入并执行一帧世界。
+        /// </summary>
+        internal void Tick(int frame, BattleFrameInputs inputs)
+        {
+            AuthorityFrame = frame;
+            World.ApplyInputs(inputs);
+            World.Tick();
+        }
+
+        /// <summary>
+        /// 读取本局指定单位当前的定点状态。
+        /// </summary>
+        public bool TryGetUnitState(long playerId, out BattleUnitState state)
+        {
+            if (World != null)
+            {
+                return World.TryGetUnitState(playerId, out state);
+            }
+
+            state = default;
+            return false;
         }
 
         /// <summary>
@@ -66,7 +110,10 @@ namespace GameLogic
             _fsm = null;
             Clock = null;
             Updater = null;
-            ExecuteTick = null;
+            World.Release();
+            World = null;
+            FrameBuffer = null;
+            AuthorityFrame = -1;
         }
     }
 }

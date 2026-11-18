@@ -8,10 +8,13 @@ namespace GameLogic
     internal sealed class InitializeBattleState : BattleRoomState
     {
         /// <summary>
-        /// 当前骨架的准备流程同步完成。
+        /// 建立当局 Entitas 世界和本地输入槽。
         /// </summary>
         protected override void OnEnter(IFsm<BattleRoom> fsm)
         {
+            BattleRoom room = fsm.Owner;
+            room.World = new BattleWorld(room.InitialUnits);
+            room.FrameBuffer = new BattleFrameBuffer(room.InitialUnits.Length);
             ChangeState<StartBattleState>(fsm);
         }
     }

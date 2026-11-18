@@ -13,7 +13,7 @@ namespace GameLogic
         protected override void OnUpdate(IFsm<BattleRoom> fsm, float elapseSeconds, float realElapseSeconds)
         {
             BattleRoom room = fsm.Owner;
-            room.Updater.Update(room.Clock, FixedTimeCounter.ReadMilliseconds(), room.ExecuteTick);
+            room.Updater.Update(room, FixedTimeCounter.ReadMilliseconds());
         }
     }
 }

@@ -22,6 +22,11 @@ namespace GameLogic
         public static readonly FixedPoint One = new FixedPoint(RAW_ONE);
 
         /// <summary>
+        /// 定点数二分之一。
+        /// </summary>
+        internal static readonly FixedPoint Half = new FixedPoint(RAW_ONE >> 1);
+
+        /// <summary>
         /// 源算法使用的最小有限值。
         /// </summary>
         public static readonly FixedPoint MinValue = new FixedPoint(long.MinValue + 2);
@@ -55,6 +60,79 @@ namespace GameLogic
         public static FixedPoint FromRaw(long rawValue)
         {
             return new FixedPoint(rawValue);
+        }
+
+        /// <summary>
+        /// 按上游单精度常量的转换顺序取得定点值。
+        /// </summary>
+        internal static FixedPoint FromFloat(float value)
+        {
+            return new FixedPoint((long)(value * RAW_ONE));
+        }
+
+        /// <summary>
+        /// 计算定点平方根，并按上游规则舍入。
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">参数为负数。</exception>
+        internal static FixedPoint Sqrt(FixedPoint value)
+        {
+            if (value.RawValue < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), "不能计算负数的定点平方根。");
+            }
+
+            unchecked
+            {
+                ulong remainder = (ulong)value.RawValue;
+                ulong result = 0;
+                ulong bit = 1UL << 62;
+                while (bit > remainder)
+                {
+                    bit >>= 2;
+                }
+
+                // 分两次求根，使用 64 位整数得到定点结果。
+                for (int pass = 0; pass < 2; pass++)
+                {
+                    while (bit != 0)
+                    {
+                        if (remainder >= result + bit)
+                        {
+                            remainder -= result + bit;
+                            result = (result >> 1) + bit;
+                        }
+                        else
+                        {
+                            result >>= 1;
+                        }
+
+                        bit >>= 2;
+                    }
+
+                    if (pass == 0)
+                    {
+                        if (remainder > uint.MaxValue)
+                        {
+                            remainder = ((remainder - result) << FRACTIONAL_BITS) - 0x80000000UL;
+                            result = (result << FRACTIONAL_BITS) + 0x80000000UL;
+                        }
+                        else
+                        {
+                            remainder <<= FRACTIONAL_BITS;
+                            result <<= FRACTIONAL_BITS;
+                        }
+
+                        bit = 1UL << (FRACTIONAL_BITS - 2);
+                    }
+                }
+
+                if (remainder > result)
+                {
+                    result++;
+                }
+
+                return new FixedPoint((long)result);
+            }
         }
 
         /// <summary>

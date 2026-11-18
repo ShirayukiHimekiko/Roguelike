@@ -10,6 +10,11 @@
   <ItemGroup>
     <Compile Include="GameAttribute.cs" />
     <Compile Include="..\..\..\UnityProject\Assets\GameScripts\HotFix\GameLogic\EntitasDemo\Components\*.cs" />
+    <Compile Include="..\..\..\UnityProject\Assets\GameScripts\HotFix\GameLogic\Module\BattleModule\Components\*.cs" />
+    <Compile Include="..\..\..\UnityProject\Assets\GameScripts\HotFix\GameLogic\Module\BattleModule\FixedPoint.cs" />
+    <Compile Include="..\..\..\UnityProject\Assets\GameScripts\HotFix\GameLogic\Module\BattleModule\FixedVector*.cs" />
+    <Compile Include="..\..\..\UnityProject\Assets\GameScripts\HotFix\GameLogic\Module\BattleModule\FixedQuaternion.cs" />
+    <Compile Include="..\..\..\UnityProject\Assets\GameScripts\HotFix\GameLogic\Module\BattleModule\BattleInput.cs" />
   </ItemGroup>
 
   <ItemGroup>
