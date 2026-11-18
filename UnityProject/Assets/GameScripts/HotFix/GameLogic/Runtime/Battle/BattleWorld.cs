@@ -14,7 +14,7 @@ namespace GameLogic
         /// <summary>世界下一次待执行的帧号。</summary>
         internal int Frame { get; private set; }
 
-        /// <summary>按开战数据顺序创建单位并装配世界系统。</summary>
+        /// <summary>按开战数据顺序创建单位，并初始化当局系统树。</summary>
         internal BattleWorld(BattleUnitStartData[] initialUnits)
         {
             _units = new BattleEntity[initialUnits.Length];
@@ -31,7 +31,7 @@ namespace GameLogic
                 _unitsByPlayerId.Add(initialUnit.PlayerId, entity);
             }
 
-            _systems.Add(new BattleMovementSystem(_units));
+            // 在这里按执行顺序注册具体战斗系统。
             _systems.Initialize();
         }
 

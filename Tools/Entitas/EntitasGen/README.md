@@ -29,12 +29,12 @@ dotnet Jenny\Jenny.Generator.Cli.dll server
 dotnet Jenny\Jenny.Generator.Cli.dll client gen
 ```
 
-生成目标：`Assets/GameScripts/HotFix/GameLogic/EntitasDemo/Generated`。
+生成文件位于 `Assets/GameScripts/HotFix/GameLogic/Runtime/Entitas/Generated`。手写战斗组件归在 `Runtime/Battle/Components`，生成工程从 `Utility` 读取定点字段类型。
 
 配置在 `UnityProject/Jenny.properties`，使用相对路径，不需要改机器路径。
 
 ## 说明
 
 - 新增组件后，把文件加入 `EntitasGen.csproj` 的 `<Compile Include=...>`，再执行 `client gen`。
-- 已启用 `ContextObserverGenerator` 和 `FeatureClassGenerator`：`Contexts` 在 Play 时自动创建 `ContextObserver`；根系统用生成的 `Feature`（`EntitasDemoSystems`），不要在 MonoBehaviour 里手写 `new ContextObserver(...)` 或自定义 `Feature` 基类。
+- 已启用 `ContextObserverGenerator` 和 `FeatureClassGenerator`。共享 `Contexts` 包含观察器接线；单局战斗由 `BattleWorld` 创建独立的 `BattleContext` 和系统树。
 - Unity 6 下 DLL 必须放在 `Assets/Plugins` 下，否则 asmdef 不会自动引用（会报 `CS0246: Entitas`）。
