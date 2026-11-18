@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
 using GameLogic;
-using GameLogic.Frame;
 #if ENABLE_OBFUZ
 using Obfuz;
 #endif
@@ -42,9 +41,7 @@ public partial class GameApp
     private static async UniTaskVoid StartGameLogic()
     {
         await UniTask.Yield();
-
-        FrameManager.Instance.Active();
-
+        
         GameModule.UI.ShowUIAsync<StartUI>();
         
         GameAppManager.Instance.Start();

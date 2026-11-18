@@ -1,6 +1,10 @@
 # Project B · ET10 源码迁入与 Entitas 战斗联机分步执行手册
 
-2026-11-17 · 方案 B · 施工提案 · 所有实施项待执行
+2026-11-17 · 方案 B · 执行记录见第 7 节
+
+**本轮执行约束。** 迁入的 ET10 源文件保持固定提交内容。第 3 节谈到修改、替换或迁控制流时，在 Project B 的房间、协议或宿主代码内接线。项目代码在外部输入入口完成校验，在确有恢复或资源释放需要时处理异常。单次逻辑留在调用处。实测发现需要额外防御时，先说明具体失败条件和维护成本，经确认后再实施。
+
+**施工实况。** 新增工程符号按职责命名为 `GameRuntime`、`BattleModule`、`BattleServer` 和 `BattleCodeGen`。`Infrastructure/GameRuntime/Source~` 保存原始底层源码和独立的项目宿主接线。SDK 构建 Unity 主包使用的 `GameRuntime.dll`，因为上游 Entity 文件的 `UNITY_EDITOR` 分支直接引用 Odin。保留上游内部命名和第三方程序集标识。具体目录、生成和启动命令见 [战斗运行说明](../../../Tools/BattleServer/README.md)。
 
 **最终落点：把 ET10 的固定逻辑帧、房间及联机源码拆进 Project B；用 Entitas 1.14.1 编写并保存战斗逻辑；用 TEngine 管应用生命周期、资源和表现。** 本期玩家只开放单机，工程同批交付可运行的独立 .NET 权威服、两个 Unity 联机客户端、预测回滚及完整重连。项目中的战斗和网络源码从第一天就按最终目录维护，无需安装原 ET UPM 包，也不建立 Project B 的共享 UPM 包。
 
@@ -16,17 +20,17 @@
 
 **已选基线。** ET10 官方 `master` 固定为 [`743c635dd5b0f6f6bab549c0093382c85f3f8307`][et]，不跟随浮动分支；作者已同意迁移，随文件保留来源及声明，第三方库独立记录。Project B 当前 Unity 版本为 `6000.0.69f1`，ET10 上游基线是 `2022.3.62f3`。独立服务端以 ET10 的 `.NET 8` 工程为迁移起点，首个目标平台与最终部署运行时由实际构建、部署决定。Entitas 固定 [1.14.1][entitas]。
 
-**仓库现状。** `GameApp.Entrance` 已接热更启动，`StartGameLogic` 激活 `FrameManager`，后者用普通 `IUpdate` 广播应用级 `TickAdvanced`。它不是新战斗房间的时钟；保留其现有调用方，新房间不订阅这个 Tick。`SingletonSystem` 已能把 `IUpdate` / `ILateUpdate` 注册到 TEngine 的 UpdateDriver。`GameModule.cs` 尚无战斗门面。`Jenny.properties` 和 `EntitasGen.csproj` 仍用旧 `Game` / `EntitasDemo` 配置，本体工具目录 `UnityProject/Jenny/` 被 Git 忽略，不能假设干净工作区已有 CLI 和插件。[GameApp](../../Assets/GameScripts/HotFix/GameLogic/GameApp.cs) · [FrameManager](../../Assets/GameScripts/HotFix/GameLogic/Module/Frame/FrameManager.cs) · [SingletonSystem](../../Assets/GameScripts/HotFix/GameLogic/SingletonSystem/SingletonSystem.cs) · [Jenny 配置](../../Jenny.properties) · [Jenny 解析工程](../../../Tools/Entitas/EntitasGen/EntitasGen.csproj)
+**仓库接线。** 开始界面通过 `GameModule.Battle` 创建本地房间，`SingletonSystem` 用 `IUpdate` / `ILateUpdate` 驱动战斗模块。旧 `FrameManager` 退出应用入口，脚本清理记录见 M3。Jenny 1.14.1 已切到正式 `Battle` Context，CLI 安装和生成路径见项目配置。[GameModule](../../Assets/GameScripts/HotFix/GameLogic/GameModule.cs) · [SingletonSystem](../../Assets/GameScripts/HotFix/GameLogic/SingletonSystem/SingletonSystem.cs) · [Jenny 配置](../../Jenny.properties) · [Jenny 解析工程](../../../Tools/Entitas/EntitasGen/EntitasGen.csproj)
 
 **本期能力范围。** 完整迁入所选直连房间拓扑需要的 ET 运行时、房间、帧同步、会话/KCP、序列化与编译生成。ET 的 Gate、Location、Router、NetInner、服务发现按依赖逐项归类；若确有必需服务，迁入并验收它的配置和启动，直连能够替代的示例依赖从调用处移除。上游 MMO 登录/匹配示例、ET 的战斗 ECS、美术和第二套 YooAsset/Loader 启动不进入本期运行。正式账号、匹配、跨进程路由和上线运维留到开放联机前；进行中的单机对局不迁成联机房间。
 
 ## 2. 最终目录、程序集和新增文件
 
-路径相对仓库根。以下是拟创建的文件，不是当前已落地代码。已有项目模块和关联目录只做必要接线。
+路径相对仓库根。以下目录包含实施规划，已落地入口以施工实况和运行说明为准。
 
 ```text
 UnityProject/Assets/GameScripts/
-  Infrastructure/EtRuntime/                   # ProjectB.EtRuntime.asmdef，Unity AOT
+  Infrastructure/GameRuntime/                   # SDK 产物进入 Plugins，原始源码在 Source~
     Core/                                     # World、Fiber、ETTask、时间、注册、Entity 基础
     Transport/                                # NetComponent、Session、KService/KChannel、KCP、UDP 适配
     Serialization/                            # 消息元数据和 MemoryPack 的运行接缝
@@ -34,29 +38,29 @@ UnityProject/Assets/GameScripts/
   HotFix/GameLogic/                           # 现有 GameLogic.asmdef
     GameModule.cs / GameApp.cs                 # 增加模块门面、启动与停止接线
     Module/BattleModule/
-      IBattleService.cs / BattleService.cs
-      Host/EtBattlePump.cs                     # 唯一 TEngine → ET Update/LateUpdate
+      IBattleModule.cs / BattleModule.cs
+      Host/BattleModule.cs                     # 唯一 TEngine → ET Update/LateUpdate
       Client/LocalBattleSession.cs / RemoteBattleSession.cs
       Presentation/BattleViewBridge.cs         # UnitId、显示插值、资源、确认事件
       Shared/
         Contracts/                             # BattleSetup、InputBatch、Snapshot、ReadModel
         Simulation/
           Components/ / Generated/ / Systems/  # Entitas Battle Context，生成物单一输出
-          EntitasBattleSimulation.cs / BattleSnapshotCodec.cs
+          BattleSimulation.cs / BattleSnapshotCodec.cs
         Lockstep/                              # AuthorityRoom、RoomClock、FrameHistory、预测、回滚、回放
         Protocol/Generated/                    # ET 消息类型、Opcode 表，可跨端编译
 Tools/
-  ProjectB.Server/                             # 建议 .sln，Runtime、Battle、Host、ReplayCli 各 csproj
-  ProjectB.CodeGen/                             # 协议 Schema、Opcode 清单、生成入口、迁入清单
+  BattleServer/                             # 建议 .sln，Runtime、Battle、Host、ReplayCli 各 csproj
+  BattleCodeGen/                             # 协议 Schema、Opcode 清单、生成入口、迁入清单
   Entitas/EntitasGen/                           # 复用现有解析工程，改扫正式 Battle 组件
 ```
 
 | 编译单元 | 明确的依赖方向与落地动作 |
 | --- | --- |
-| Unity `ProjectB.EtRuntime`（新 asmdef） | 只编译基础设施，允许迁入的底层 unsafe 路径按平台启用，统一 MemoryPack 运行库和版本。不引用 `GameLogic`、YooAsset、Luban 或 Unity 业务；需要平台能力时由宿主提供实现。 |
-| Unity `GameLogic`（现有 asmdef） | 显式引用 `ProjectB.EtRuntime`；复用已有 Entitas Runtime/Attributes 插件引用并核对导入平台。`BattleModule/Shared` 与 Unity 门面同属现有 `GameLogic`，不增加热更 DLL 名。现有 `UpdateSetting.asset` 热更列表为 `GameProto.dll`、`GameLogic.dll`，新增 AOT 基础设施不加入热更列表。对实际使用的泛型、生成 formatter 与注册类型检查 AOT 补充和裁剪保留。 |
-| `.NET` `ProjectB.EtRuntime.csproj`、`ProjectB.Battle.csproj` | 用 `Compile Include` 取仓库内的 `Infrastructure/EtRuntime` 可跨端路径和 `BattleModule/Shared` 子目录，不把 Unity 生成的 `GameLogic.csproj` 或 `GameLogic.dll` 当服务端依赖。独立引用匹配的 Entitas 运行时与依赖，传输与生成物版本一致。 |
-| `.NET` `ProjectB.Server.Host.csproj`、`ProjectB.Server.ReplayCli.csproj` | 引用上述两个 `.NET` 项目。前者持有主循环、UDP 监听、场次注册、会话到席位及关停；后者读取 `Setup + Snapshot + ConfirmedFrames` 重演，不建立网络。 |
+| Unity `GameRuntime.dll`（主包运行库） | 由 `Tools/BattleServer/Runtime/GameRuntime.csproj` 编译基础设施、项目宿主和 MemoryPack 生成物。战斗门面属于 `GameLogic`，服务端编译同一份运行库源。 |
+| Unity `GameLogic`（现有 asmdef） | 显式引用 `GameRuntime`；复用已有 Entitas Runtime/Attributes 插件引用并核对导入平台。`BattleModule/Shared` 与 Unity 门面同属现有 `GameLogic`，不增加热更 DLL 名。现有 `UpdateSetting.asset` 热更列表为 `GameProto.dll`、`GameLogic.dll`，新增 AOT 基础设施不加入热更列表。对实际使用的泛型、生成 formatter 与注册类型检查 AOT 补充和裁剪保留。 |
+| `.NET` `GameRuntime.csproj`、`Battle.csproj` | 用 `Compile Include` 取仓库内的 `Infrastructure/GameRuntime` 可跨端路径和 `BattleModule/Shared` 子目录，不把 Unity 生成的 `GameLogic.csproj` 或 `GameLogic.dll` 当服务端依赖。独立引用匹配的 Entitas 运行时与依赖，传输与生成物版本一致。 |
+| `.NET` `Host/BattleServer.csproj`、`Replay/Replay.csproj` | 引用上述两个 `.NET` 项目。前者持有主循环、UDP 监听、场次注册、会话到席位及关停；后者读取 `Setup + Snapshot + ConfirmedFrames` 重演，不建立网络。 |
 
 程序集边界以项目 asmdef 和 csproj 为准，不照抄上游 `MainPackage.txt` 的构建收集规则。ET 上游的 `ET.Core.csproj` 会读 `MainPackage.txt` 再从 `Packages` 收集 Core 源；本项目显式列文件或受控子目录。ET 运行时需要发现的热更类型，由 `GameApp.Entrance` 装配时传入已加载程序集或已生成的注册表。涉及反射扫描、生成器检查程序集名、包名常量、Obfuz 或 IL2CPP 时逐项建立注册清单，不能把缺注册当成“未调用就不用迁”。[上游 ET.Core.csproj][et-core-build] · [Unity 程序集][unity-asm] · [MSBuild 选择编译文件][msbuild] · [项目 UpdateSetting](../../Assets/TEngine/Settings/UpdateSetting.asset)
 
@@ -66,14 +70,14 @@ Tools/
 
 | 上游文件或入口 | 判定与项目落点 | 每项必须处理的调用或依赖 |
 | --- | --- | --- |
-| `CORE/Scripts/Core/Share/World/World.cs`、`Singleton.cs`、`Fiber/FiberManager.cs`、`Fiber/FiberInit.cs`、`TimeInfo/TimeInfo.cs`，以及 `Scripts/Core/Share/ETTask/`、`Entity/` | **提取**至 `EtRuntime/Core/`，选择 World、Fiber、调度、Entity 基础及实际依赖。 | 区分全局单例和 Fiber 内单例，显式登记启动、注册与释放顺序。一个进程一个 ET World，房间可各有 Fiber；离线房间不装 NetComponent。若复用 `CodeTypes` 或生成的系统类，登记扫描来源和保留类型。 |
-| `CORE/Scripts/Core/Share/Network/{KService,KChannel,AService,AChannel,IKcpTransport,MessageSerializeHelper,OpcodeType,OpcodeRangeDefine}.cs`、`Network/Kcp/`；`Scripts/Model/Share/Message/{NetComponent,Session,MessageSessionDispatcher}.cs`；`Scripts/Hotfix/Share/Message/{NetComponentSystem,SessionSystem}.cs` | **提取并适配**至 `EtRuntime/Transport/`、`Serialization/`。补被直接调用的 UDP 实现、包缓冲、超时、分派和消息注册。 | `NetComponentSystem.Awake` 接入 `IKcpTransport`，建立 `KService`。直连走 `Create(realIPEndPoint)` 分支；用项目读消息接线把已解码包送到会话/房间。保留 Session 生命周期、超时、关闭与 RPC 回调清理。按 ET 的消息所有权复制值后再回池。路由版重载及旧 Gate 分派仅按实际拓扑保留。 |
-| `CORE/Scripts/Core/Share/Serialize/MemoryPackHelper.cs`；`Packages/cn.etetet.memorypack/DotNet~/ET.MemoryPack*` | **提取实际使用的运行库及生成链**。运行端接入 `EtRuntime/Serialization/` 或必要的同版本第三方库；生成工具在 `Tools/ProjectB.CodeGen/` 管理。 | Wire DTO 使用同版 MemoryPack formatter。核对特定 fork 的实际依赖和声明，Unity 与 .NET 不各装一套不同版本；避免类型冲突。战斗状态规范编码由项目拥有，不能序列化活的 Entitas 世界。 |
-| `Packages/cn.etetet.truesync/Scripts/Core/Share/{Fix64,TSMath,TSRandom,TSVector2}.cs` | **提取**实际使用的定点和 RNG 依赖至 `EtRuntime/Math/`。 | 先确认类型所需查表、舍入、溢出和 raw 值编码。快照须能恢复完整随机算法状态；只保存初始 seed 无法恢复已消耗的随机序列。若上游 RNG 状态不便导出，项目加窄适配或选明确可保存的共享 RNG，实现两端同算法。 |
+| `CORE/Scripts/Core/Share/World/World.cs`、`Singleton.cs`、`Fiber/FiberManager.cs`、`Fiber/FiberInit.cs`、`TimeInfo/TimeInfo.cs`，以及 `Scripts/Core/Share/ETTask/`、`Entity/` | **提取**至 `Infrastructure/GameRuntime/Source~/Core/`，选择 World、Fiber、调度、Entity 基础及实际依赖。 | 区分全局单例和 Fiber 内单例，显式登记启动、注册与释放顺序。一个进程一个 ET World，房间可各有 Fiber；离线房间不装 NetComponent。若复用 `CodeTypes` 或生成的系统类，登记扫描来源和保留类型。 |
+| `CORE/Scripts/Core/Share/Network/{KService,KChannel,AService,AChannel,IKcpTransport,MessageSerializeHelper,OpcodeType,OpcodeRangeDefine}.cs`、`Network/Kcp/`；`Scripts/Model/Share/Message/{NetComponent,Session,MessageSessionDispatcher}.cs`；`Scripts/Hotfix/Share/Message/{NetComponentSystem,SessionSystem}.cs` | **提取并适配**至 `Infrastructure/GameRuntime/Source~/Transport/`、`Serialization/`。补被直接调用的 UDP 实现、包缓冲、超时、分派和消息注册。 | `NetComponentSystem.Awake` 接入 `IKcpTransport`，建立 `KService`。直连走 `Create(realIPEndPoint)` 分支；用项目读消息接线把已解码包送到会话/房间。保留 Session 生命周期、超时、关闭与 RPC 回调清理。按 ET 的消息所有权复制值后再回池。路由版重载及旧 Gate 分派仅按实际拓扑保留。 |
+| `CORE/Scripts/Core/Share/Serialize/MemoryPackHelper.cs`；`Packages/cn.etetet.memorypack/DotNet~/ET.MemoryPack*` | **提取实际使用的运行库及生成链**。运行端接入 `Infrastructure/GameRuntime/Source~/Serialization/` 或必要的同版本第三方库；生成工具在 `Tools/BattleCodeGen/` 管理。 | Wire DTO 使用同版 MemoryPack formatter。核对特定 fork 的实际依赖和声明，Unity 与 .NET 不各装一套不同版本；避免类型冲突。战斗状态规范编码由项目拥有，不能序列化活的 Entitas 世界。 |
+| `Packages/cn.etetet.truesync/Scripts/Core/Share/{Fix64,TSMath,TSRandom,TSVector2}.cs` | **提取**实际使用的定点和 RNG 依赖至 `Infrastructure/GameRuntime/Source~/Math/`。 | 先确认类型所需查表、舍入、溢出和 raw 值编码。快照须能恢复完整随机算法状态；只保存初始 seed 无法恢复已消耗的随机序列。若上游 RNG 状态不便导出，项目加窄适配或选明确可保存的共享 RNG，实现两端同算法。 |
 | `LS/Scripts/Model/Share/{Room,FixedTimeCounter,FrameBuffer,OneFrameInputs,Replay}.cs`；`LS/Scripts/Hotfix/Share/RoomSystem.cs` | **改成项目代码**。`Room` → `AuthorityRoom`/客户端房间；`FixedTimeCounter` → `RoomClock`；`FrameBuffer` → `FrameHistory`；`RoomSystem.Update` → 单一提交链。落 `BattleModule/Shared/Lockstep/`。 | 去掉 `LSUnitComponent`、`LSWorld` 初始化与序列化。移植时钟公式和历史的环形思路，补完整 Tick 标签、分别保存权威输入/预测输入/状态。上游在步进前保存快照；项目改为步进、清理、成功提交后保存，并统一回滚偏移。 |
 | `LS/Scripts/Hotfix/Server/Room/{FiberInit_RoomRoot,LSServerUpdaterSystem}.cs`、`…/Server/Map/{FrameMessageHandler,RoomMessageHelper}.cs` | **迁机制，改宿主**。权威步进与封帧在共享层，启动和消息投递在 `.NET` Host 或 Unity 本地会话。 | 上游权威 Updater 先递增和广播，再 `room.Update`；本项目先执行并提交再广播。补服务端会话绑定席位、一次性与持续输入的分别封存、乱序/重复处理，禁止直接信任客户端身份或战斗结果。 |
 | `LS/Scripts/Hotfix/Client/{LSClientUpdaterSystem,OneFrameInputsHandler,LSClientHelper,LSReplayUpdaterSystem,Room2C_CheckHashFailHandler}.cs` 和 `…/Server/Room/{C2Room_CheckHashHandler,G2Room_ReconnectHandler}.cs` | **迁控制流**到 `Shared/Lockstep/` 与客户端、服务端网关。 | 权威帧用显式 Tick 而不是“收到就 AuthorityFrame++”。换掉 `GetLSWorld`、世界替换和旧 Hash。`JumpReplay`、回滚和重连都通过项目恢复接口。上游重连只给帧号与单位位置等不足以继续算，替换为完整快照协议。 |
-| `LS/Proto/LockStepOuter_C_11001.proto`、`LockStepInner_S_21001.proto`；`Packages/cn.etetet.proto/DotNet~/Proto2CS.cs`；`Packages/cn.etetet.sourcegenerator/DotNet~/ET.SourceGenerator/` | 协议 **参考后重定义**。工具 **提取与改路径** 到 `Tools/ProjectB.CodeGen/`。Roslyn 只配置实际所需生成器与分析规则。 | 核对 `Proto2CS` 包扫描、初始 Opcode 与消息顺序、生成输出和对 Mongo 的强制调用。为 Project B 建项目路径入口和显式 Opcode 清单；在 Unity 与 .NET 核对实体系统、MemoryPack 的生成与注册。 |
+| `LS/Proto/LockStepOuter_C_11001.proto`、`LockStepInner_S_21001.proto`；`Packages/cn.etetet.proto/DotNet~/Proto2CS.cs`；`Packages/cn.etetet.sourcegenerator/DotNet~/ET.SourceGenerator/` | 协议 **参考后重定义**。工具 **提取与改路径** 到 `Tools/BattleCodeGen/`。Roslyn 只配置实际所需生成器与分析规则。 | 核对 `Proto2CS` 包扫描、初始 Opcode 与消息顺序、生成输出和对 Mongo 的强制调用。为 Project B 建项目路径入口和显式 Opcode 清单；在 Unity 与 .NET 核对实体系统、MemoryPack 的生成与注册。 |
 | `Packages/cn.etetet.lsentity/`；`Packages/cn.etetet.loader/Scripts/Loader/Client/{Init,CodeLoader}.cs`；ET Demo 表现、Gate/Router 样例、原打包脚本 | **原版行为参考**。整套 `LSWorld/LSEntity`、原 Init/CodeLoader、UI、美术以及上游 UPM 描述不进入本项目战斗。 | 只从上游初始化顺序收集所需服务。保留 TEngine 既有 Loader、Config、YooAsset。直连首期按实际引用处理 Gate/Location/NetInner/Router/discovery，若为必要依赖则按文件迁入；其正式部署不是首期验收拓扑。 |
 
 关键源码：[RoomSystem][et-room] · [FrameBuffer][et-buffer] · [客户端回滚][et-client] · [权威 Updater][et-server] · [示例重连][et-reconnect] · [NetComponentSystem][et-net] · [协议生成器][et-proto-gen]。上游分析建立在固定 Git 树和关键源码上；编译闭包和生成配置要到 M0/M1 产出，不能以目录存在替代实际可构建的证明。
@@ -91,15 +95,15 @@ flowchart LR
     L --> A[共享 AuthorityRoom]
     S --> A
     N --> P[本地预测与回滚]
-    A --> E[EntitasBattleSimulation.Step]
+    A --> E[BattleSimulation.Step]
     P --> E
     E --> R[值状态 / 已确认事件]
     R --> API
 ```
 
-`IBattleService` 的最小门面是 `StartOfflineAsync(BattleStartRequest, ct)`、内部构建的 `JoinOnlineAsync(OnlineJoinRequest, ct)`、`SubmitCommand(BattleHandle, BattleCommand)`、`TryGetReadModel(BattleHandle, out model)`、`SetOfflinePaused(BattleHandle, paused)`、`StopAsync(BattleHandle, ct)`。所有客户端入口走同一套 `BattleHandle`（场次、代次）和只读模型。Unity 侧异步用 UniTask，比赛 Tick 内无 IO 或 await；网络消息和异步结果排到房间线程再应用。服务端通过 .NET 自己的宿主驱动同一份权威源码。
+`IBattleModule` 的最小门面是 `StartOfflineAsync(BattleStartRequest, ct)`、内部构建的 `JoinOnlineAsync(OnlineJoinRequest, ct)`、`SubmitCommand(BattleHandle, BattleCommand)`、`TryGetReadModel(BattleHandle, out model)`、`SetOfflinePaused(BattleHandle, paused)`、`StopAsync(BattleHandle, ct)`。所有客户端入口走同一套 `BattleHandle`（场次、代次）和只读模型。Unity 侧异步用 UniTask，比赛 Tick 内无 IO 或 await；网络消息和异步结果排到房间线程再应用。服务端通过 .NET 自己的宿主驱动同一份权威源码。
 
-- `EtBattlePump` 只注册一次 `IUpdate/ILateUpdate`，负责 ET 的时间更新和 Fiber Pump，查核 `FiberManager` 实际注册的调度器，防止 Unity/ET 各自驱动重复。应用 FSM 持有会话进入、后台和退出的请求，不直接执行战斗系统。预测、权威、录像各自有模拟实例与时钟，不共享 Entitas 全局 Context。
+- `BattleModule` 只注册一次 `IUpdate/ILateUpdate`，负责 ET 的时间更新和 Fiber Pump，查核 `FiberManager` 实际注册的调度器，防止 Unity/ET 各自驱动重复。应用 FSM 持有会话进入、后台和退出的请求，不直接执行战斗系统。预测、权威、录像各自有模拟实例与时钟，不共享 Entitas 全局 Context。
 - 本地按游戏规则暂停房间时钟，ET 宿主保持 Pump。恢复时重锚 `RoomClock`，保留下一帧前应等待的剩余时间；暂停期间没有补帧。联机退后台不暂停服务器；回来依据延迟/断线状态追帧或重连。停止先阻断新输入、取消关联资源请求，等待房间清理完成，再释放会话和 Pump。应用退出的同步清理可作兜底，不能依赖退出回调启动需要若干未来帧的异步释放。
 - 视图只拿值和 `UnitId`。按 generation 丢弃迟到的资源/登录结果，错误归属的资源按 TEngine 规则释放。低频开局、离场、连接状态走 `GameEvent`，UI 用 `AddUIEvent`；是否采用接口事件，要先核对当前注释掉的 `GameEventHelper.Init()` 和项目注册。逻辑系统按固定顺序写组件，表现读模型可在渲染帧插值。
 
@@ -174,7 +178,7 @@ Reconnect(request):
 
 ### 6.1 内部联机协议
 
-复用 ET 的传输与 Session 机制，相同握手校验通过后才加入房间。采用 Project B 自己的 Schema；不需要兼容 ET Demo 客户端。以下消息为拟定的接口合同，具体编号写入仓库 `Tools/ProjectB.CodeGen/Protocol/opcodes.json`，处于 ET 外网允许范围，并在 M0 对底座已启用消息核查冲突。[ET 外网 Opcode 范围][et-opcodes]
+复用 ET 的传输与 Session 机制，相同握手校验通过后才加入房间。采用 Project B 自己的 Schema；不需要兼容 ET Demo 客户端。以下消息为拟定的接口合同，具体编号写入仓库 `Tools/BattleCodeGen/Protocol/opcodes.json`，处于 ET 外网允许范围，并在 M0 对底座已启用消息核查冲突。[ET 外网 Opcode 范围][et-opcodes]
 
 | 通信 | 载荷与行为 |
 | --- | --- |
@@ -195,60 +199,68 @@ Reconnect(request):
 | **ET Proto2CS** | 提取有用解析与模板，把 `Proto2CS.Export(HashSet<string> packages)` 的包扫描换成 `schemaPath + opcodeManifest + outputDir`。去掉只为上游构建保留 Mongo 的调用，若独立拓扑无 Mongo 需求，不为该调用引入数据层。`opcodes.json` 固定消息 ID，生成器检查重号、范围与删除/重排造成的变更。共用消息写 `Shared/Protocol/Generated`，握手与恢复阶段的处理器放相应宿主。产物与 Schema 一起版本化；在临时输出生成并比较，匹配后再替换专用目录。 |
 | **Roslyn / MemoryPack** | `ETSystemGenerator` 等只保留底座在用的功能，必要时调整对 ET 上游程序集名或目录的检查，不把旧 ET `Model/Hotfix` 分层约束套到 Entitas 业务。Unity 使用兼容该 Editor Roslyn 的 Analyzer 路线，.NET 通过 Analyzer 引用接入。确认 wire 消息、formatter、EntitySystem 与 Opcode 生成/注册。相同逻辑只采用一种生成方式，避免一端既包含 C# 生成物又重复启用同一生成器。上线验收必须覆盖真实 IL2CPP Player。 |
 
-落地后的候选操作如下。Jenny CLI 与插件应通过同版来源或固定构建产物准备，仓库应有版本及获取步骤；以下命令本次未执行。`ProjectB.CodeGen` / `ProjectB.Server` 命令是计划实现的入口与参数，不是当前已有命令。
+当前生成和无头验收使用以下入口。Jenny 运行方式见 [Entitas 工具说明](../../../Tools/Entitas/EntitasGen/README.md)。首版通过 Runtime SDK 编译统一生成 Wire formatter，协议表的 Proto2CS 行保留作扩展参考。
 
 ```powershell
-# Jenny：此段在 UnityProject/ 下执行，已固定 CLI 和插件时
-dotnet Jenny/Jenny.Generator.Cli.dll gen
+# 在 UnityProject/ 执行
+dotnet --roll-forward Major Jenny/Jenny.Generator.Cli.dll gen
 
-# 以下在仓库根目录执行，按本文实现对应 csproj 后使用
-dotnet run --project Tools/ProjectB.CodeGen -- protocol --repo-root . --check
-dotnet build Tools/ProjectB.Server/ProjectB.Server.sln -c Release
-dotnet run --project Tools/ProjectB.Server/ReplayCli -- replay --input <录像> --expected <摘要清单>
-dotnet run --project Tools/ProjectB.Server/Host -- --config <内部联调配置>
+# 以下在 Tools/BattleServer/ 执行
+dotnet build Runtime/GameRuntime.csproj -c Release -m:1 -p:PublishUnityRuntime=true
+dotnet build Host/BattleServer.csproj -c Release -m:1
+dotnet run --project Replay/Replay.csproj -c Release -- verify Replay/Fixtures/DeployMoveAttack.json
+dotnet run --project Host/BattleServer.csproj -c Release --no-build -- listen 27901
 ```
 
-`protocol --check` 先生成到临时目录并对照仓库生成物。需要更新产物时提供显式写入模式，清理范围限定为生成目录。Jenny CLI 若使用仓库现有的 server/client 模式，server 与 client 都从 `UnityProject/` 启动并读取同一份新配置，勿误用仍在运行的旧 Demo 工具实例。[上游 Proto2CS][et-proto-gen] · [项目 Jenny 规范](../../.agents/skills/entitas-dev/references/jenny-and-integration.md)
+双客户端命令见 [战斗运行说明](../../../Tools/BattleServer/README.md)。Jenny CLI 使用 server/client 模式时，两端以 `UnityProject/` 为工作目录并读取同一份正式配置。[上游 Proto2CS][et-proto-gen] · [项目 Jenny 规范](../../.agents/skills/entitas-dev/references/jenny-and-integration.md)
 
 ## 7. 分步施工清单
 
 执行 `M0 → M1 → M2 → M3 → M4 → M5 → M6 → M7`。每个勾选项是独立修改目标。按所属阶段完成后，将产物、实际改动和验收结果附在该项后；没有执行的验证保持未验收。施工建议按阶段留可单独撤回的提交。上层阶段遇到失败时暂不扩大迁入范围，先定位本阶段的边界、依赖或合同。
 
+| 实际验收 | 结果 |
+| --- | --- |
+| 源文件原样迁入 | 逐文件校验 `SourceImportManifest.csv` 中 241 个已迁入源码、依赖和工具文件，与固定提交 Git blob 一致。项目适配器放在独立文件中。 |
+| 编译和主 Fiber | .NET `GameRuntime`、`BattleServer` 和 `Replay` 构建成功，主 Fiber 创建与释放成功。Unity Pipeline 在删除旧帧资源后编译完成，Console 无错误。 |
+| 同一录像跨端对账 | .NET 生成五帧确认录像，从第 3 帧恢复后和原确认摘要一致。Unity Editor 用同一输入逐帧核对，五帧摘要均匹配，胜方席位 1。 |
+| 本机 UDP/KCP | 独立服务端与两个 .NET 联调客户端通过回环 UDP/KCP 进入房间。一次执行中，两端均确认第 8 帧由席位 1 获胜。席位 1 回滚一次，席位 2 换连接后恢复一次。 |
+| Unity Player 与发布 | Windows Player、双 Unity 客户端、IL2CPP/HybridCLR 以及负载和异常矩阵作为独立验收项记录。 |
+
 ### M0 · 锁定源码和可迁入闭包
 
-- [ ] **建立上游与目标基线。** 记录固定 ET 提交、两端 Unity/.NET 版本、实际可取得的源码和声明，固定 Entitas、Jenny、分析器与序列化依赖。保留原版 ET 样例入口作为差异参照，基线 checkout 单独存放。操作：`checkout 固定 SHA → 记录树/版本/工具来源 → 保存基线清单`。
-- [ ] **给迁入范围做逐文件清单。** 新建拟定 `Tools/ProjectB.CodeGen/SourceImportManifest.csv`，列 `upstream_commit, source_path, disposition, target_path, unity_assembly, dotnet_project, codegen_registration, dependency_reason, license_note`。从第 3 节起点递归追编译、生成、配置和运行注册；常量或目录扫描也当依赖追踪。操作：`Room/Session/World → 找直接引用和注册 → 递归闭包 → 分类为原样提取/项目适配/仅参考`。
-- [ ] **冻结数据和拓扑边界。** 选择室内双客户端直连、一套本地权威流程、固定步频输入合同、协议 ID 预留和稳定 ID。操作：`list 已注册外网 Opcode → 给新消息分配无冲突区间 → 固定 Schema/快照版本 → 记录待定参数`。
+- [x] **建立上游与目标基线。** 固定提交 `743c635d`、Unity 6000.0.69f1、.NET 8 SDK、Entitas/Jenny 1.14.1 和上游 MemoryPack。声明与源码一起保存。
+- [x] **给实际迁入范围做逐文件清单。** 已创建 `Tools/BattleCodeGen/SourceImportManifest.csv` 并校验 241 个迁入文件。会话编译需要 Location 消息接口和测试消息标记，已提取原始接口。回环拓扑经实际测试可由 `NetworkChannel` 和 `NetworkBattleRoom` 直接投递。
+- [x] **冻结首个数据和拓扑边界。** 落地双席位、单进程直连、20 Hz 和稳定单位 ID。消息注册使用外网 Opcode `15001`，快照和应用层协议当前均为版本 1。
 
 **放行证据：** 能按文件说明从哪来、搬到哪里、为什么需要和谁编译。为 Gate/Location/Router/NetInner 等列出“必要迁入”或明确的项目替代调用处。仍无法确认的运行依赖标明风险及需要在哪一步验证，不写成已移除。
 
 ### M1 · 拆入 ET 底座，打通两端最小构建
 
-- [ ] **迁通用底座。** 依清单放入 `Infrastructure/EtRuntime`，添加 `ProjectB.EtRuntime.asmdef` 和服务端 Runtime csproj，删除包扫描入口并补必要宏、平台/unsafe 规则、生成器和 MemoryPack。操作：`迁入文件 → 显式源集合 → 生成/注册 → World/Fiber 探针`。
-- [ ] **接 Unity 与 .NET 宿主。** `GameApp.Entrance` 初始化项目注册与 `EtBattlePump`，清理入口按 `停房间 → 继续 Pump 等释放 → 释放 ET World` 排序；`.NET` Host 管理自己的 Pump。技术探针只创建/销毁一个离线 Fiber，不创建网络。操作：`RegisterTypes → World → Pump → Create/Remove Fiber → Release`。
-- [ ] **建立生成和注册对照。** 对每个必需的 EntitySystem、消息/formatter、FiberInit 列注册名及编译归属。检查是否写死程序集名、包名或上游入口。操作：`生成产物 → 运行注册清单 → 构建版日志 → 对照差异`。
+- [x] **迁通用底座。** `GameRuntime.csproj` 编译 `Source~`，用 .NET Standard 2.1 产出工程内 Unity DLL。ET 原生生成器在 SDK 中运行，MemoryPack 与匹配的原始依赖复用。Unity 和 .NET 已编译通过。
+- [ ] **接 Unity 与 .NET 宿主。** `GameApp.Entrance` 初始化项目注册与 `BattleModule`，清理入口按 `停房间 → 继续 Pump 等释放 → 释放 ET World` 排序；`.NET` Host 管理自己的 Pump。技术探针只创建/销毁一个离线 Fiber，不创建网络。操作：`RegisterTypes → World → Pump → Create/Remove Fiber → Release`。
+- [x] **建立首个生成和注册链。** 运行库在外部 SDK 生成 EntitySystem 和 formatter。`RuntimeHost` 显式传入运行库和调用方程序集。已验证主 Fiber、定时器、Session 和网络消息注册。
 
 **放行证据：** 干净工作区可以用项目内源码建立 Unity 和 `.NET` 最小构建；ET World/Fiber 只创建一次，退出可释放。不依赖 ET UPM、PackageCache 里的 ET 源码或外部 ET checkout。尽早用最小目标 IL2CPP 构建暴露生成器/AOT 问题，最终 Player 验收仍在 M7。
 
 ### M2 · 建正式 Entitas 战斗世界
 
-- [ ] **迁 Jenny 配置和首批组件。** 改解析工程与正式输出路径，选定同版 CLI，处理指向旧 Demo 的关联引用。生成 Context/Entity/Matcher、索引和组件 API，使生成物能被 Unity 和 `.NET` 同时编译。操作：`正式组件 → Jenny → 唯一 Generated → 两端 Compile`。
-- [ ] **实现战斗 Tick。** 建 `EntitasBattleSimulation`、独立的 Context/System 树、输入队列、确定性时间/定点/随机服务及最小系统。先跑部署、移动、攻击、死亡和终局。操作：`初始化 → Seal/Inject → Execute 顺序 → Cleanup → BuildResult`。
+- [x] **迁 Jenny 配置和首批组件。** 正式 `Battle` Context、组件 API、Matcher 和 UnitId 索引已生成且双端编译。
+- [x] **实现首个战斗 Tick。** `BattleSimulation` 装配独立 Entitas 系统，具备整数格移动、部署、命中、冷却、生命和终局。Unity 与 .NET 对账已通过。随机、Buff 和延迟任务的组合样例仍待接入。
 - [ ] **校验实例与生命周期隔离。** 同进程并列建两份战斗，先关闭其中一份再推进另一份；重开时不用 `Contexts.sharedInstance`，检查 Collector、Retain、场次代次的释放。操作：`A、B 开局 → 只推进 A → 释放 A → B 继续 → 新建 A2`。
 
 **放行证据：** 同一个短脚本输入在两个环境运行规则源码，生成正式的部署、伤害、终局输出；关闭一个实例不影响另一个；快照尚未接时也不允许规则读 Unity 或墙上时钟。
 
 ### M3 · 单机可玩，完成快照与录像
 
-- [ ] **建立共用权威房间。** 迁 `FixedTimeCounter`、`FrameBuffer` 和权威 Updater 机制，完成 `AuthorityRoom`、`FrameHistory`、输入封存与成功后提交。`LocalBattleSession` 直接进同一房间类。操作：`命令 → 定位可提交 Tick → Seal → Step → Hash/History → Broadcast/读模型`。
-- [ ] **接 TEngine 门面和表现。** `GameModule.Battle` 接开局/暂停/退出；Luban 投影为确定性值配置；用项目资源入口建立 Scene/视图并按场次释放。将暂停策略和 Generation 丢弃晚到结果落实，现有 `FrameManager.TickAdvanced` 不接入此战斗。操作：`开局 → 绑定视图 → 离线暂停/恢复 → 停止任务和 Fiber → 清视图`。
-- [ ] **实现规范快照、恢复与无头重播。** 写状态字段覆盖表、`BattleSnapshotCodec`、Hash 和 `ReplayCli`；中段快照导入后继续读确认输入。操作：`Capture(t) → Restore(t) → Apply(t+1...) → 对账每个确认摘要`。
+- [x] **建立共用权威房间。** `AuthorityRoom` 复用原始 `FixedTimeCounter`，在房间入口接收和排序输入，提交状态后发布确认。本地和 .NET Host 都使用该类。
+- [ ] **接 TEngine 门面和正式表现。** 已接入开始界面、暂停、退出、状态展示和内存回放。在确认没有脚本和序列化引用后，通过 Unity Pipeline 删除旧 `FrameManager`、`FrameClock` 和两个专用探针脚本。Luban 数据投影与正式资源视图仍需按玩法接入。
+- [x] **实现首版规范快照、恢复与无头重播。** 当前组件、局级状态和下一单位 ID 进入版本化编码。`.NET Replay` 可从文件复演并核对摘要。Unity 窗口支持最近一局的内存回放。
 
 **放行证据：** 断网时能通过实际项目入口完成首个战斗、暂停与重开。一个脚本录像可在 Unity 与独立 .NET 重跑，逐确认帧摘要和结果一致；故意恢复中间快照后也一致。保留代表性的生命周期与结果记录。
 
 ### M4 · 同批接入真实 UDP/KCP 和纯确认帧
 
-- [ ] **建立协议生成和双端注册。** 建 Schema、明确 Opcode 清单、`ProjectB.CodeGen` 命令和清理区，生成共享 Wire DTO，Unity 与 .NET 同步注册。操作：`Schema/IDs → Gen → 双端序列化 → 注册表对比`。
+- [x] **建立首版协议与双端注册。** 以单个 `NetworkPacket` 的固定外网 Opcode 进入原始 Session。SDK 使用 MemoryPack 生成 formatter，业务格式由 `BattleProtocol` 定义。当前实现与手册中按多消息使用 Proto2CS 的构想有所不同。
 - [ ] **建 .NET 直连 Host 与 Unity 客户端。** 服务端用实际 `NetComponent/KService/Session` 监听内网端口；内部 Unity Player 用 `NetComponent.Create(realIPEndPoint)` 直连，完成握手、席位、Ready、Tick 0、关闭。非房间线程只排值。操作：`Listen → Create Session → Hello → Join/Ready → Start → Route`。
 - [ ] **接单一权威推进和确认队列。** 收到输入先由房间校验，`AuthorityRoom` 成功提交后才广播；Unity 先关闭预测，按显式 Tick 连续吃确认并上报摘要。操作：`二端输入 → 共享权威 Step → 连续确认 → 客户端 Step → Hash`。
 
@@ -299,7 +311,7 @@ dotnet run --project Tools/ProjectB.Server/Host -- --config <内部联调配置>
 
 未来正式开放联机需要接界面、身份与匹配、部署地址、网络和容量验收；若引入网关、路由、服务发现，绑定在现有 Session 到房间投递的边界。已验收的 `AuthorityRoom`、战斗规则、协议数据合同和回滚恢复保持共用。这就是“后续能直接加联机”的完成标准：**增加产品入口和正式服务环境即可接现有网络玩法，不再重写战斗状态或另造一套模拟。**
 
-本文已基于本仓库和固定 ET10 源码编写，属于施工文档。没有迁运行时代码、修改配置、执行 Jenny 或运行 Unity、编译、联机与性能验证。
+当前验收实施状态以第 7 节和运行说明为准。性能、发行和 Player 验收按第 8 节补齐。
 
 [et]: https://github.com/egametang/ET/commit/743c635dd5b0f6f6bab549c0093382c85f3f8307
 [et-core-build]: https://github.com/egametang/ET/blob/743c635dd5b0f6f6bab549c0093382c85f3f8307/Packages/cn.etetet.core/DotNet~/ET.Core.csproj
