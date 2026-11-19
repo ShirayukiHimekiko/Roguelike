@@ -29,7 +29,7 @@ dotnet Jenny\Jenny.Generator.Cli.dll server
 dotnet Jenny\Jenny.Generator.Cli.dll client gen
 ```
 
-生成文件位于 `Assets/GameScripts/HotFix/GameLogic/Runtime/Entitas/Generated`。手写战斗组件归在 `Runtime/Battle/Components`，生成工程从 `Utility` 读取定点字段类型。
+生成文件位于 `Assets/GameScripts/HotFix/GameLogic/Runtime/Entitas/Generated`。`Battle` Context 目前没有正式玩法组件。正式玩法新增组件后，把对应源码及字段依赖纳入此解析项目；`UnityProject/Tools/BattleFrameworkDemo` 的组件不参与正式生成。
 
 配置在 `UnityProject/Jenny.properties`，使用相对路径，不需要改机器路径。
 

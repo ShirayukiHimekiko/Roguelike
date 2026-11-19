@@ -1,4 +1,7 @@
+using Cysharp.Threading.Tasks;
 using TEngine;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace GameLogic
 {
@@ -9,8 +12,19 @@ namespace GameLogic
 
 		private partial void OnClick_StartBtn()
 		{
-			// 开始游戏先留空
-			Log.Info("[StartUI] start clicked.");
+			BattleManager.Instance.StartBattle();
+		}
+
+		/// <summary>
+		/// 读取菜单中的上一局回放快捷键。
+		/// </summary>
+		protected override void OnUpdate()
+		{
+			Keyboard keyboard = Keyboard.current;
+			if (keyboard != null && keyboard.rKey.wasPressedThisFrame)
+			{
+				BattleManager.Instance.StartLastReplayAsync().Forget();
+			}
 		}
 
 		private partial void OnClick_QuitBtn()

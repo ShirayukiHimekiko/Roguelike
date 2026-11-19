@@ -8,24 +8,15 @@
 //------------------------------------------------------------------------------
 public static class BattleComponentsLookup {
 
-    public const int GameLogicBattlePosition = 0;
-    public const int GameLogicBattleRotation = 1;
-    public const int GameLogicBattleUnitId = 2;
-    public const int GameLogicBattleUnitInput = 3;
 
-    public const int TotalComponents = 4;
+
+    public const int TotalComponents = 0;
 
     public static readonly string[] componentNames = {
-        "GameLogicBattlePosition",
-        "GameLogicBattleRotation",
-        "GameLogicBattleUnitId",
-        "GameLogicBattleUnitInput"
+
     };
 
     public static readonly System.Type[] componentTypes = {
-        typeof(GameLogic.BattlePositionComponent),
-        typeof(GameLogic.BattleRotationComponent),
-        typeof(GameLogic.BattleUnitIdComponent),
-        typeof(GameLogic.BattleUnitInputComponent)
+
     };
 }

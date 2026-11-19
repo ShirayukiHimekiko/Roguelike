@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
+using UnityEditor.Build;
 
 namespace DesperateDevs.Unity.Editor
 {
@@ -22,9 +23,10 @@ namespace DesperateDevs.Unity.Editor
 
         public void Add(string defineSymbol, BuildTargetGroup buildTargetGroup)
         {
-            var symbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(
-                buildTargetGroup,
+            var buildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup);
+            var symbols = PlayerSettings.GetScriptingDefineSymbols(buildTarget);
+            PlayerSettings.SetScriptingDefineSymbols(
+                buildTarget,
                 Regex.Replace(symbols, $@"\b{defineSymbol}\b", string.Empty) + ";" + defineSymbol
             );
         }
@@ -37,9 +39,10 @@ namespace DesperateDevs.Unity.Editor
 
         public void Remove(string defineSymbol, BuildTargetGroup buildTargetGroup)
         {
-            var symbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(
-                buildTargetGroup,
+            var buildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTargetGroup);
+            var symbols = PlayerSettings.GetScriptingDefineSymbols(buildTarget);
+            PlayerSettings.SetScriptingDefineSymbols(
+                buildTarget,
                 Regex.Replace(symbols, $@"\b{defineSymbol}\b", string.Empty)
             );
         }

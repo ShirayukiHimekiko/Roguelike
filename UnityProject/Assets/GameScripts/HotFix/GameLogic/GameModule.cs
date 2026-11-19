@@ -62,14 +62,6 @@ public class GameModule
 
     private static GameAppManager _gameApp;
 
-    /// <summary>
-    /// 当前游戏的战斗生命周期入口。
-    /// </summary>
-    public static BattleModule Battle
-    {
-        get { return BattleModule.Instance; }
-    }
-
     #endregion
 
     private static T Get<T>() where T : class
